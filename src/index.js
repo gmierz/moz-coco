@@ -29,6 +29,43 @@ var TableRowData = React.createClass({
   }
 });
 
+
+var NavButton = React.createClass({
+  render: function() {
+    return (
+      <button onClick={this.props.callback}>
+      <i className="fa fa-bars" aria-hidden="true" ></i>
+      </button>
+    );
+  }
+});
+
+var Sidebar = React.createClass({
+  getInitialState: function() {
+        return {collapsed: false};
+  },
+  render: function() {
+    return (
+      <div id="sidebar" className="sidebar">
+        <NavButton callback={function() { 
+          var sb = document.getElementById("sidebar");
+          var wrapper = document.getElementById("page-wrapper");
+          if (this.state.collapsed) {
+            this.state.collapsed = false; 
+            sb.setAttribute("class", "sidebar");
+            wrapper.setAttribute("class", "page-wrapper");
+          } else {
+            this.state.collapsed = true;
+            sb.setAttribute("class", "sidebar collapsed");
+            wrapper.setAttribute("class", "page-wrapper collapsed");
+          }
+        }.bind(this)}/>
+        
+      </div>
+    );
+  }
+});
+
 var AddIndexArray = function(li) {
         var i = 0;
         return li.map(function(l) {
@@ -36,11 +73,13 @@ var AddIndexArray = function(li) {
                 return {"id": i, "val": l};
         });
 }
+
          
 
 ReactDOM.render((
+  <div id="page-wrapper" className="page-wrapper">
+  <Sidebar /> 
   <Grid fluid>
-  <Grid>
   <Row>
   <Col sm={9} md={6}>
   <Table striped condensed hover>
@@ -52,7 +91,7 @@ ReactDOM.render((
   </Col>
   </Row>
   </Grid>
-  </Grid>
+  </div>
   ), document.getElementById('react-root')
 );
  

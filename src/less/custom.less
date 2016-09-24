@@ -1,12 +1,33 @@
-.sidebar {
-	color-background: #ff1a00;
-	width: 300px;
-	height: 100%;
-	margin: 25px;
-	.collapsed {
-		width: 40px;
-		margin: 10px;
-	}
+@sidebarwidth: 300px;
+@sidebarcollapsed: 80px;
+
+html, body, .page-wrapper, #react-root {
+        height: 100%;
 }
 
+.sidebar {
+  float: left;
+  background-color: #ff1a00;
+  width: @sidebarwidth;
+  height: 100%;
+  padding: 25px;
+  margin-left: -@sidebarwidth;
+//transition: all 2s ease;
+}
+
+.sidebar.collapsed {
+  &:extend(.sidebar);
+  margin-left: -@sidebarcollapsed;
+  width: @sidebarcollapsed;
+}
+
+.page-wrapper {
+  padding-left: @sidebarwidth;
+  //transition: all 2s ease;
+}
+       
+.page-wrapper.collapsed {
+  &:extend(.page-wrapper);
+  padding-left: @sidebarcollapsed;
+}
 
