@@ -9,20 +9,24 @@
     ]
   },
   "dependencies": {
+    "connect": "^3.5.0",
+    "serve-static": "^1.11.1"
+  },
+  "devDependencies": {
     "babel": "^6.5.2",
     "babel-preset-react": "^6.11.1",
     "babelify": "^7.3.0",
     "browserify": "^13.1.0",
+    "less": "^2.7.1",
     "react": "^15.3.2",
     "react-bootstrap": "^0.30.3",
     "react-dom": "^15.3.2",
-    "reactify": "^1.1.1"
-  },
-  "devDependencies": {
-    "less": "^2.7.1"
+    "reactify": "^1.1.1",
+    "uglifyify": "^3.0.3"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublish": "node scripts/install.js"
   },
   "author": "brad",
   "license": "MPL-2.0"
