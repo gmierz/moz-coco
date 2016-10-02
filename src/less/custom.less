@@ -2,32 +2,31 @@
 @sidebarcollapsed: 80px;
 
 html, body, .page-wrapper, #react-root {
-        height: 100%;
+  height: 100%;
 }
 
 .sidebar {
+  position: fixed;
   float: left;
   background-color: #ff1a00;
   width: @sidebarwidth;
   height: 100%;
   padding: 25px;
   margin-left: -@sidebarwidth;
-  transition: all 2s ease;
+  transition: all 1s ease;
+  &.sidebar.collapsed {
+    width: @sidebarcollapsed;
+    margin-left: -@sidebarcollapsed;
+  }
 }
 
-.sidebar.collapsed {
-  &:extend(.sidebar);
-  margin-left: -@sidebarcollapsed;
-  width: @sidebarcollapsed;
-}
 
 .page-wrapper {
   padding-left: @sidebarwidth;
-  //transition: all 2s ease;
+  &.page-wrapper.collapsed {
+    padding-left: @sidebarcollapsed;
+  }
+  transition: all 1s ease;
 }
        
-.page-wrapper.collapsed {
-  &:extend(.page-wrapper);
-  padding-left: @sidebarcollapsed;
-}
 
