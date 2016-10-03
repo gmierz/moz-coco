@@ -21,7 +21,7 @@ fs.readFile('src/less/custom.less', 'utf8', (err, data) => {
   if (err) throw err;
   less.render(data,
     {
-      compress: true
+//      compress: true
     },
     (err, output) => {
       if (err) throw err;
