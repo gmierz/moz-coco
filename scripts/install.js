@@ -3,13 +3,13 @@ var fs = require('fs');
 var browserify = require('browserify');
 var less =require('less');
 
-var b = browserify('src/index.js');
+var b = browserify('src/components/index.js');
 
-
+/*
 b.transform({
     global: true
 }, 'uglifyify');
-
+*/
 b.bundle((err, buffer) => {
   if (err) throw err;
   fs.writeFile('js/bundle.js', buffer, (err, fd) => {
