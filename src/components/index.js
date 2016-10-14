@@ -11,13 +11,15 @@ var NavItem = require('react-bootstrap/lib/NavItem');
 var PageStore = require('../stores/PageStore');
 var PageActions = require('../actions/PageActions');
 
+var Client = require('../client/client');
+
 var TableHeadData = React.createClass({
   render: function() {
+    var items = [];
+    this.props.data.forEach((d) => {items.push(<th key={d.id}>{d.val}</th>);});
     return (
       <thead><tr>
-        {this.props.data.map(function(d) {
-          return <th key={d.id}>{d.val}</th>;
-        })}
+        {items}
       </tr></thead>
     );
   }
@@ -80,7 +82,6 @@ var NavOptions = React.createClass({
   }
 });
 
-var navOpts = <NavOptions/>;
 
 var Sidebar = React.createClass({
   getInitialState: function() {
@@ -114,9 +115,50 @@ var Sidebar = React.createClass({
   }
 });
 
-var sideBar = <Sidebar>{navOpts}</Sidebar>;
+var CocoTable = React.createClass({
+  getInitialState: function() {
+    return {query: Client.testQuery, data: null};
+  },
+  componentWillMount: function() {
+    this.sendQuery();
+  },
+  componentWillUnmount: function() {
+  },
+  _onChange: function() {
+    this.forceUpdate();
+  },
+  sendQuery: function() {
+    if (this.state.query == null) {
+      return;
+    }
+    Client.makeRequest('http://activedata.allizom.org/query',
+        Client.testQuery, (data) => {
+      this.state.data = {};
+      // Get the name prop of the header objects
+      this.state.data.headers = data.header.map((o) => {return o.name});
+      this.state.data.rows = [];
+    }); 
+  },
+  render: function() {
+    if (this.state.data == null) {
+      return (<h4>No data!</h4>);
+    }
+    var rows = [];
+    for (row in this.state.data.rows) {
+      rows.push(<TableRowData data={addIndexArray(row)}/>);
+    } 
+    return (
+      <Table striped condensed hover>
+        <TableHeadData data={addIndexArray(this.state.data.headers)}/>
+        <tbody>
+          {rows}
+        </tbody>
+      </Table>
+    );
+  }
+});
 
-var AddIndexArray = function(li) {
+var addIndexArray = function(li) {
   var i = 0;
   return li.map(function(l) {
     i++;
@@ -141,16 +183,11 @@ var TopLevel = React.createClass({
     } 
     return ( 
       <div id="page-wrapper" className={classnametxt}>
-      {sideBar} 
+      <Sidebar><NavOptions/></Sidebar>
       <Grid fluid>
       <Row>
       <Col sm={12}>
-      <Table striped condensed hover>
-        <TableHeadData data={AddIndexArray(["head1", "head2"])}/>
-        <tbody>
-        <TableRowData data={AddIndexArray(["one", "two"])}/>
-        </tbody>
-      </Table>
+      <CocoTable />
       </Col>
       </Row>
       </Grid>
