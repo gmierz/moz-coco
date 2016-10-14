@@ -131,12 +131,17 @@ var CocoTable = React.createClass({
     if (this.state.query == null) {
       return;
     }
-    Client.makeRequest('http://activedata.allizom.org/query',
+    Client.makeRequest('activedata.allizom.org',
         Client.testQuery, (data) => {
+      console.log(data);
       this.state.data = {};
       // Get the name prop of the header objects
-      this.state.data.headers = data.header.map((o) => {return o.name});
-      this.state.data.rows = [];
+      this.setState({
+        data: {
+          headers: data.header,
+          rows: data.data
+        }
+      });
     }); 
   },
   render: function() {
@@ -144,9 +149,9 @@ var CocoTable = React.createClass({
       return (<h4>No data!</h4>);
     }
     var rows = [];
-    for (row in this.state.data.rows) {
+    this.state.data.rows.forEach((row) => {
       rows.push(<TableRowData data={addIndexArray(row)}/>);
-    } 
+    });
     return (
       <Table striped condensed hover>
         <TableHeadData data={addIndexArray(this.state.data.headers)}/>

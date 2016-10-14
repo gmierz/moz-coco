@@ -1,7 +1,7 @@
-var request = require('request');
+var https = require('https');
 
 var handleErrors = function(err) {
-  console.log(err);
+  throw err;
 }
 
 var testQuery = {
@@ -27,24 +27,38 @@ var testQuery = {
   "groupby":[{"name":"filename","value":"source.file.name"}]
 }
 
-function makeRequest(url, body, callback) {
+function makeRequest(host, body, callback) {
+  var jsonbody = JSON.stringify(body);
   options = {
-    "url": url,
-    "body": body,
-    "json": true
+    hostname: host,
+    port: 443,
+    path: '/query',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'text/plain',
+      'Content-Length': Buffer.byteLength(jsonbody)
+    }
   }
-  p = new Promise((resolve, reject) => { 
-    request.post(options, (err, resp, body) => {
-      if (!err) {
-        resolve(body);
-      } else {
-        reject(err);
-      } 
+  var respchunks = [];
+  var p = new Promise((resolve, reject) => {
+    var req = https.request(options, (res) => {
+      res.setEncoding('utf8');
+      res.on('data', (chunk) => {
+        respchunks.push(new Buffer(chunk));
+      });
+      res.on('end', (chunk) => {
+        resolve(Buffer.concat(respchunks).toString('utf8'));
+      });
+      res.on('error', (e) => {
+        reject(e);
+      });
     });
+    req.write(jsonbody);
+    req.end();
   });
 
   p.then((body) => {
-    callback(body);
+    callback(JSON.parse(body));
   }).catch((err) => handleErrors(err));
 }
 
