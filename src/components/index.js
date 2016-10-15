@@ -11,7 +11,8 @@ var NavItem = require('react-bootstrap/lib/NavItem');
 var PageStore = require('../stores/PageStore');
 var PageActions = require('../actions/PageActions');
 
-var Client = require('../client/client');
+var Client = require('../client/Client');
+var ClientConstants = require('../client/ClientConstants');
 
 var TableHeadData = React.createClass({
   render: function() {
@@ -27,11 +28,11 @@ var TableHeadData = React.createClass({
 
 var TableRowData = React.createClass({
   render: function() {
+    var items = [];
+    this.props.data.forEach((d) => {items.push(<td key={d.id}>{d.val}</td>);});
     return (
       <tr>
-        {this.props.data.map(function(d) {
-          return <td key={d.id}>{d.val}</td>;
-        })}
+        {items}
       </tr>
     );
   }
@@ -48,9 +49,6 @@ var NavButton = React.createClass({
   }
 });
 
-var handleSelect = function(n) {
-};
-
 var NavOptions = React.createClass({
   getInitialState: function() {
     return {};
@@ -64,18 +62,24 @@ var NavOptions = React.createClass({
   _onChange: function() {
     this.forceUpdate();
   },
+  handleSelect: function(key) {
+    return () => {
+      PageActions.change(key);
+    };
+  },
   render: function() {
     var shown = !PageStore.getCollapsed();
     var items = [];
     if (shown) {
       var allItems = PageStore.getAll();
       for (var key in allItems) {
-        items.push(<NavItem key={key}>{allItems[key].title}</NavItem>);
+        items.push(<NavItem 
+          onSelect={this.handleSelect(key)} 
+          key={key}>{allItems[key].title}</NavItem>);
       }
     }
     return (
-      <Nav stacked activeKey={1} 
-        onSelect={handleSelect} style={{marginTop: '20px'}}>
+      <Nav stacked activeKey={1} style={{marginTop: '20px'}}>
         {items}
       </Nav>
     );
@@ -88,9 +92,8 @@ var Sidebar = React.createClass({
         return {"collapsed": false};
   },
   componentWillMount: function() {
-    // TODO(brad) proper callback
     PageStore.addChangeListener(this._onChange);
-    PageActions.create("Title 1", "");
+    PageActions.create("Coverage by Filename", ClientConstants.testQuery);
     PageActions.create("Title 2", ""); 
   },
   componentWillUnmount: function() {
@@ -117,23 +120,24 @@ var Sidebar = React.createClass({
 
 var CocoTable = React.createClass({
   getInitialState: function() {
-    return {query: Client.testQuery, data: null};
+    return {query: ClientConstants.testQuery, data: null};
   },
   componentWillMount: function() {
     this.sendQuery();
+    PageStore.addChangeListener(this._onChange, 'query');
   },
   componentWillUnmount: function() {
   },
-  _onChange: function() {
-    this.forceUpdate();
+  _onChange: function(e) {
+    this.setState({query: PageStore.getQuery()});
+    this.sendQuery();
   },
   sendQuery: function() {
-    if (this.state.query == null) {
+    if (this.state.query == null || this.state.query == "") {
       return;
     }
     Client.makeRequest('activedata.allizom.org',
-        Client.testQuery, (data) => {
-      console.log(data);
+        this.state.query, (data) => {
       this.state.data = {};
       // Get the name prop of the header objects
       this.setState({
@@ -149,8 +153,9 @@ var CocoTable = React.createClass({
       return (<h4>No data!</h4>);
     }
     var rows = [];
-    this.state.data.rows.forEach((row) => {
-      rows.push(<TableRowData data={addIndexArray(row)}/>);
+    var rowdata = addIndexArray(this.state.data.rows);
+    rowdata.forEach((row) => {
+      rows.push(<TableRowData key={row.id} data={addIndexArray(row.val)}/>);
     });
     return (
       <Table striped condensed hover>

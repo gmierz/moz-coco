@@ -5,6 +5,7 @@ var keyMirror = require('keymirror');
 
 
 var CHANGE_EVENT = 'change';
+var QUERY_EVENT = 'query';
 
 var _pages = {};
 var _current_page = 0;
@@ -31,8 +32,16 @@ function toggle_sidebar() {
   _sidebar_collapsed = !_sidebar_collapsed;
 }
 
+function updateQuery(q) {
+  _selected_query = q;
+}
+
 var PageStore = Object.assign({}, EventEmitter.prototype, {
   
+  getQuery: function() {
+    return _pages[_current_page].query;
+  },
+
   getAll: function() {
     return _pages;
   },
@@ -41,16 +50,16 @@ var PageStore = Object.assign({}, EventEmitter.prototype, {
     return _sidebar_collapsed;
   },
   
-  emitChange: function() {
-    this.emit(CHANGE_EVENT);
+  emitChange: function(evnt = CHANGE_EVENT) {
+    this.emit(evnt);
   },
 
-  addChangeListener: function(callback) {
-    this.on(CHANGE_EVENT, callback);
+  addChangeListener: function(callback, type=CHANGE_EVENT) {
+    this.on(type, callback);
   },
 
-  removeChangeListener: function(callback) {
-    this.removeListener(CHANGE_EVENT, callback);
+  removeChangeListener: function(callback, type=CHANGE_EVENT) {
+    this.removeListener(type, callback);
   }
 });
 
@@ -62,12 +71,17 @@ AppDispatcher.register(function(action) {
       break;
     case PageConstants.PAGE_CHANGE:
       switchPage(action.id);
-      PageStore.emitChange();
+      PageStore.emitChange(QUERY_EVENT);
       break;
     case PageConstants.SIDEBAR_TOGGLE:
       toggle_sidebar();
       PageStore.emitChange();
       break;
+    case PageConstants.UPDATE_QUERY:
+      updateQuery();
+      PageStore.emitChange(QUERY_EVENT);
+      break;
+      
     default:
   }
 });
