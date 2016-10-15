@@ -121,15 +121,26 @@ var Sidebar = React.createClass({
   },
   render: function() {
     var classnametxt = "sidebar";
+    var imgico = <img src="icons/android-chrome-512x512.png" className=
+            "img-responsive" width="150"></img>;
+    var banner = 
+        <div className={"bottom"}>
+          Coco made with ❤️ by the Code Coverage team
+        </div>;
     if(PageStore.getCollapsed()) {
       classnametxt += " collapsed";
+      imgico = banner = [] 
     }
     return (
       <div id="sidebar" className={classnametxt}>
-        <NavButton callback={function() {
-          PageActions.toggleSidebar();
+        <div style={{textAlign: "right"}}>
+          <NavButton callback={function() {
+            PageActions.toggleSidebar();
           }}/>
+          {imgico}
+        </div>
         {this.props.children} 
+        {banner}
       </div>
     );
   }

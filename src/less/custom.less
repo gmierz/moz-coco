@@ -5,21 +5,34 @@ html, body, .page-wrapper, #react-root {
   height: 100%;
 }
 
+@sidebarcolor: #6574c4;
 .sidebar {
   position: fixed;
   float: left;
-  background-color: #ff1a00;
+  background-color: @sidebarcolor;
   width: @sidebarwidth;
   height: 100%;
   padding: 25px;
   margin-left: -@sidebarwidth;
   transition: all 1s ease;
+  border-right-style: solid;
+  border-right-color: darken(@sidebarcolor, 10%);
+  border-right-width: 4px;
   &.sidebar.collapsed {
     width: @sidebarcollapsed;
     margin-left: -@sidebarcollapsed;
   }
 }
 
+.sidebar > div.bottom {
+  position: absolute;
+  text-align: center;
+  bottom: 0;
+  left: 0;
+  margin-left: 5px;
+  margin-bottom: 5px;
+  color: darken(@sidebarcolor, 10%);
+}
 
 .page-wrapper {
   padding-left: @sidebarwidth;
