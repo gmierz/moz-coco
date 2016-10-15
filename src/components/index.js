@@ -21,7 +21,37 @@ var allQueries = [
     name: 'Coverage by Filename',
     obj:  {
       obj: ClientConstants.testQuery,
-      processPre: (d)=>{},
+      processPre: (comp ,d)=>{
+        comp.setState({
+          data: {
+            headers: d.header,
+            rows: d.data
+           }
+        });
+      },
+      processHeaders: (d) => {
+        return d.map(StringManipulation.header)
+      },
+      processBody: (d)=>{return d;}
+    }
+  },
+  {
+    name: 'All Test Files',
+    obj: {
+      obj: {
+        "from":"coverage-summary",
+        "edges":"source.file.name",
+        "where":{"regexp":{"source.file.name":".*/test/.*"}},
+        "limit":10000,
+      },
+      processPre: (comp ,d)=>{
+        comp.setState({
+          data: {
+            headers: ["Source File Name"],
+            rows: d.edges[0].domain.partitions.map((o) => {return [o.name];}) 
+           }
+        });
+      },
       processHeaders: (d) => {
         return d.map(StringManipulation.header)
       },
@@ -29,6 +59,7 @@ var allQueries = [
     }
   }
 ];
+
 
 var TableHeadData = React.createClass({
   render: function() {
@@ -157,8 +188,7 @@ var CocoTable = React.createClass({
   componentWillUnmount: function() {
   },
   _onChange: function(e) {
-    this.setState({query: PageStore.getQuery()});
-    this.sendQuery();
+    this.setState({query: PageStore.getQuery()}, this.sendQuery);
   },
   sendQuery: function() {
     if (this.state.query == null || this.state.query == "") {
@@ -166,22 +196,14 @@ var CocoTable = React.createClass({
     }
     Client.makeRequest('activedata.allizom.org',
         this.state.query.obj, (data) => {
-      this.state.data = {};
       // Get the name prop of the header objects
-      this.setState({
-        data: {
-          headers: data.header,
-          rows: data.data
-        }
-      });
+      this.state.query.processPre(this, data);
     }); 
   },
   render: function() {
     if (this.state.data == null) {
       return (<h4>No data!</h4>);
     }
-    // Any preprocessing
-    this.state.query.processPre(this.state.data);
     var rows = [];
     // Any row processing
     var rowdata = addIndexArray(
