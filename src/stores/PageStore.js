@@ -12,6 +12,10 @@ var _current_page = 0;
 var _id_incrementor = 0;
 var _sidebar_collapsed = false;
 
+/* PageStore contains and dispatches update events when actions are run
+ * this allows multiple components to listen for changes
+ */
+
 function createPage(title, query) {
   var id = _id_incrementor;
   _pages[id] = {
@@ -24,7 +28,7 @@ function createPage(title, query) {
 
 function switchPage(id) {
   if (id in _pages) {
-    _current_page = id
+    _current_page = id;
   }
 }
 
@@ -87,6 +91,3 @@ AppDispatcher.register(function(action) {
 });
 
 module.exports = PageStore;
-
-
-

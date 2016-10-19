@@ -1,5 +1,9 @@
 var https = require('https');
 
+/* 
+ * This client simplifies communication with ActiveData
+ */
+
 var handleErrors = function(err) {
   throw err;
 }

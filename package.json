@@ -30,8 +30,9 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "node scripts/install.js",
+    "prepublish": "node scripts/install.js && node scripts/rebuild-bootstrap.js",
     "bootstrap-build": "node scripts/rebuild-bootstrap.js",
+    "fast": "node scripts/install.js",
     "make": "echo \"Should run all tests //TODO\" && exit 1"
   },
   "author": "brad",

@@ -133,10 +133,13 @@ var NavOptions = React.createClass({
     var items = [];
     if (shown) {
       var allItems = PageStore.getAll();
+      // Object works well with for each
       for (var key in allItems) {
-        items.push(<NavItem 
+        items.push(
+          <NavItem 
           onSelect={this.handleSelect(key)} 
-          key={key}>{allItems[key].title}</NavItem>);
+          key={key}>{allItems[key].title}</NavItem>
+        );
       }
     }
     return (
@@ -154,6 +157,7 @@ var Sidebar = React.createClass({
   },
   componentWillMount: function() {
     PageStore.addChangeListener(this._onChange);
+    // Seed the Sidebar with queries
     allQueries.forEach((q) => {
       PageActions.create(q.name, q.obj);
     });
@@ -233,7 +237,7 @@ var CocoTable = React.createClass({
     var headers = this.state.data.headers;
     // Variable usage of processHeaders
     if (this.state.query.processHeaders) {
-      var headers = this.state.query.processHeaders(headers);
+      headers = this.state.query.processHeaders(headers);
     }
     return (
       <Table striped condensed hover>
@@ -288,7 +292,3 @@ ReactDOM.render(
   <TopLevel />
   , document.getElementById('react-root')
 );
- 
-
-
-

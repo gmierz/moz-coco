@@ -1,4 +1,7 @@
 
+/* 
+ * This is intended to be the location of the stored queries
+ */
 
 const testQuery = {
   "limit":100,

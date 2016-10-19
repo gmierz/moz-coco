@@ -1,6 +1,10 @@
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var PageConstants = require('../constants/PageConstants');
 
+
+/* PageActions provides actions that can opperate on the 
+ * PageStore
+ */
 var PageActions = {
   create: function(title, query) {
     AppDispatcher.dispatch({
