@@ -5,6 +5,15 @@ var less = require('less');
 
 var b = browserify('src/components/index.js');
 
+function directoryExists(s) {
+  try {
+    fs.statSync(s);
+    return true;
+  } catch(err) {
+    return false;
+  }
+}
+
 /*
 b.transform({
     global: true
@@ -12,11 +21,11 @@ b.transform({
 */
 console.log("Creating directories");
 // Make js first
-if (!fs.statSync("js").isDirectory()) {
+if (!directoryExists("js")) {
   fs.mkdirSync("js");
 }
 
-if(!fs.statSync("css").isDirectory()) {
+if(!directoryExists("css")) {
   fs.mkdirSync("css");
 }
 
