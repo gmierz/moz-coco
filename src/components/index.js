@@ -14,65 +14,6 @@ var PageActions = require('../actions/PageActions');
 var Client = require('../client/Client');
 var ClientConstants = require('../client/ClientConstants');
 
-var StringManipulation = require('../StringManipulation'); 
-
-/* Queries have the following objects
- * name, which is the display string,
- * obj which contains the query instructions
- * within obj there is another obj which is the query in JSON
- * there is also three functions:
- * processPre(component, data) which allows you to mutate
- *   the state of the component on injestion of data, this may be left null
- *   but may be relatively useless without doing so
- * processHeaders(data) takes in a header array and returns a header array
- *   with modifications to the elements, may be null
- * processBody(data) takes in a array of arrays and returns an array of arrays,
- *   may be null.
- */
-var allQueries = [
-  { 
-    name: 'Coverage by Filename',
-    obj:  {
-      obj: ClientConstants.testQuery,
-      processPre: (comp, d)=>{
-        comp.setState({
-          data: {
-            headers: d.header,
-            rows: d.data
-           }
-        });
-      },
-      processHeaders: (d) => {
-        return d.map(StringManipulation.header)
-      },
-      processBody: null
-    }
-  },
-  {
-    name: 'All Test Files',
-    obj: {
-      obj: {
-        "from":"coverage-summary",
-        "edges":"source.file.name",
-        "where":{"regexp":{"source.file.name":".*/test/.*"}},
-        "limit":10000,
-      },
-      processPre: (comp, d)=>{
-        comp.setState({
-          data: {
-            headers: ["Source File Name"],
-            rows: d.edges[0].domain.partitions.map((o) => {return [o.name];}) 
-           }
-        });
-      },
-      processHeaders: (d) => {
-        return d.map(StringManipulation.header)
-      },
-      processBody: null
-    }
-  }
-];
-
 var TableHeadData = React.createClass({
   render: function() {
     var items = this.props.data.map((d) => {
@@ -153,12 +94,12 @@ var NavOptions = React.createClass({
 
 var Sidebar = React.createClass({
   getInitialState: function() {
-        return {"collapsed": false};
+        return {"collapsed": false, "opening": false};
   },
   componentWillMount: function() {
     PageStore.addChangeListener(this._onChange);
     // Seed the Sidebar with queries
-    allQueries.forEach((q) => {
+    ClientConstants.allQueries.forEach((q) => {
       PageActions.create(q.name, q.obj);
     });
   },
@@ -166,7 +107,16 @@ var Sidebar = React.createClass({
     PageStore.removeChangeListener(this._onChange);
   },
   _onChange: function() {
-    this.forceUpdate();
+    var pscollapsed = PageStore.getCollapsed();
+    if (this.state.collapsed && !pscollapsed) {
+      this.setState({"collapsed": pscollapsed, "opening": true});
+
+      setTimeout(() => {
+        this.setState({"opening": false});
+      }, 500);
+   } else {
+    this.setState({"collapsed": pscollapsed}); 
+   }
   },
   render: function() {
     var classnametxt = "sidebar";
@@ -176,9 +126,15 @@ var Sidebar = React.createClass({
         <div className={"bottom"}>
           Coco made with ❤️ by the Code Coverage team
         </div>;
-    if (PageStore.getCollapsed()) {
+
+    // This creates the animation
+    if (this.state.collapsed) {
       classnametxt += " collapsed";
-      imgico = banner = [] 
+    }
+    var displayChildren = true;
+    if (this.state.collapsed || this.state.opening) {
+      imgico = banner = [];
+      displayChildren = false;
     }
     return (
       <div id="sidebar" className={classnametxt}>
@@ -188,7 +144,7 @@ var Sidebar = React.createClass({
           }}/>
           {imgico}
         </div>
-        {this.props.children} 
+        {displayChildren ? this.props.children : false} 
         {banner}
       </div>
     );
@@ -206,7 +162,7 @@ var CocoTable = React.createClass({
   componentWillUnmount: function() {
   },
   _onChange: function(e) {
-    this.setState({query: PageStore.getQuery()}, this.sendQuery);
+    this.setState({data: null, query: PageStore.getQuery()}, this.sendQuery);
   },
   sendQuery: function() {
     if (this.state.query == null || this.state.query == "") {
@@ -223,7 +179,12 @@ var CocoTable = React.createClass({
   },
   render: function() {
     if (this.state.data == null) {
-      return (<h4>No data!</h4>);
+      return (
+          <div className="row loading-bar">
+            Loading... <br></br>
+            <img src="icons/8-1.gif"></img>
+          </div>
+      );
     }
     // Any row processing
     var rows = this.state.data.rows;
