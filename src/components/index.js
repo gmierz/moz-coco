@@ -16,12 +16,25 @@ var ClientConstants = require('../client/ClientConstants');
 
 var StringManipulation = require('../StringManipulation'); 
 
+/* Queries have the following objects
+ * name, which is the display string,
+ * obj which contains the query instructions
+ * within obj there is another obj which is the query in JSON
+ * there is also three functions:
+ * processPre(component, data) which allows you to mutate
+ *   the state of the component on injestion of data, this may be left null
+ *   but may be relatively useless without doing so
+ * processHeaders(data) takes in a header array and returns a header array
+ *   with modifications to the elements, may be null
+ * processBody(data) takes in a array of arrays and returns an array of arrays,
+ *   may be null.
+ */
 var allQueries = [
   { 
     name: 'Coverage by Filename',
     obj:  {
       obj: ClientConstants.testQuery,
-      processPre: (comp ,d)=>{
+      processPre: (comp, d)=>{
         comp.setState({
           data: {
             headers: d.header,
@@ -32,7 +45,7 @@ var allQueries = [
       processHeaders: (d) => {
         return d.map(StringManipulation.header)
       },
-      processBody: (d)=>{return d;}
+      processBody: null
     }
   },
   {
@@ -44,7 +57,7 @@ var allQueries = [
         "where":{"regexp":{"source.file.name":".*/test/.*"}},
         "limit":10000,
       },
-      processPre: (comp ,d)=>{
+      processPre: (comp, d)=>{
         comp.setState({
           data: {
             headers: ["Source File Name"],
@@ -55,16 +68,16 @@ var allQueries = [
       processHeaders: (d) => {
         return d.map(StringManipulation.header)
       },
-      processBody: (d)=>{return d;}
+      processBody: null
     }
   }
 ];
 
-
 var TableHeadData = React.createClass({
   render: function() {
-    var items = [];
-    this.props.data.forEach((d) => {items.push(<th key={d.id}>{d.val}</th>);});
+    var items = this.props.data.map((d) => {
+      return <th key={d.id}>{d.val}</th>;
+    });
     return (
       <thead><tr>
         {items}
@@ -75,8 +88,9 @@ var TableHeadData = React.createClass({
 
 var TableRowData = React.createClass({
   render: function() {
-    var items = [];
-    this.props.data.forEach((d) => {items.push(<td key={d.id}>{d.val}</td>);});
+    var items = this.props.data.map((d) => {
+      return <td key={d.id}>{d.val}</td>;
+    });
     return (
       <tr>
         {items}
@@ -90,7 +104,7 @@ var NavButton = React.createClass({
   render: function() {
     return (
       <Button onClick={this.props.callback}>
-      <i className="fa fa-bars" aria-hidden="true" ></i>
+        <i className="fa fa-bars" aria-hidden="true" ></i>
       </Button>
     );
   }
@@ -158,7 +172,7 @@ var Sidebar = React.createClass({
         <div className={"bottom"}>
           Coco made with ❤️ by the Code Coverage team
         </div>;
-    if(PageStore.getCollapsed()) {
+    if (PageStore.getCollapsed()) {
       classnametxt += " collapsed";
       imgico = banner = [] 
     }
@@ -196,23 +210,31 @@ var CocoTable = React.createClass({
     }
     Client.makeRequest('activedata.allizom.org',
         this.state.query.obj, (data) => {
-      // Get the name prop of the header objects
-      this.state.query.processPre(this, data);
+      // If null do not pre process
+      this.state.data = data;
+      if (this.state.query.processPre) {
+        this.state.query.processPre(this, data);
+      }
     }); 
   },
   render: function() {
     if (this.state.data == null) {
       return (<h4>No data!</h4>);
     }
-    var rows = [];
     // Any row processing
-    var rowdata = addIndexArray(
-      this.state.query.processBody(this.state.data.rows));
-    rowdata.forEach((row) => {
-      rows.push(<TableRowData key={row.id} data={addIndexArray(row.val)}/>);
-    });
+    var rows = this.state.data.rows;
+    if (this.state.query.processBody) {
+      rows = this.state.query.processBody(rows);
+    }
+    rows = addIndexArray(rows);
+    rows = rows.map((row) => {
+      return <TableRowData key={row.id} data={addIndexArray(row.val)}/>});
     // Any head processing
-    var headers = this.state.query.processHeaders(this.state.data.headers);
+    var headers = this.state.data.headers;
+    // Variable usage of processHeaders
+    if (this.state.query.processHeaders) {
+      var headers = this.state.query.processHeaders(headers);
+    }
     return (
       <Table striped condensed hover>
         <TableHeadData data={addIndexArray(headers)}/>
