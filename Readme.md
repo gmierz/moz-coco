@@ -61,13 +61,13 @@ https://github.com/co60ca/moz-codecover-ui
 ##Contact
 
 ###Mentor
-Kyle Lahnakoski
-IRC: ekyle@irc.mozilla.org
-Email: klahnakoski@mozilla.org
-Bugzilla: :ekyle
+Kyle Lahnakoski  
+IRC: ekyle@irc.mozilla.org  
+Email: klahnakoski@mozilla.org  
+Bugzilla: :ekyle  
 
 ###Participant
-Brad Kennedy
-IRC: co60ca@irc.mozilla.org
-Email: bk@co60.ca
-Bugzilla: :co60ca
+Brad Kennedy  
+IRC: co60ca@irc.mozilla.org  
+Email: bk@co60.ca  
+Bugzilla: :co60ca  
