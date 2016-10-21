@@ -1,0 +1,28 @@
+{
+    "name": "Coco",
+    "description": "Line level code coverage client application",
+    "repository": {
+        "url": "https://github.com/co60ca/moz-codecover-ui/",
+        "license": "MPL2"
+    },
+    "participate": {
+        "home": "https://github.com/co60ca/moz-codecover-ui/",
+        "irc": "irc://irc.mozilla.org/#ateam",
+        "irc-contacts": [
+            "ekyle@irc.mozilla.org",
+            "co60ca@irc.mozilla.org"
+        ]
+    },
+    "bugs": {
+        "list": "https://github.com/co60ca/moz-codecover-ui/issues"
+    },
+    "urls": {
+        "dev": "https://co60ca.github.io/coco/"
+    },
+    "keywords": [
+        "less-css",
+        "react",
+        "bootstrap",
+        "flux"
+    ]
+}
