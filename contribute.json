@@ -11,7 +11,8 @@
         "irc-contacts": [
             "ekyle@irc.mozilla.org",
             "co60ca@irc.mozilla.org"
-        ]
+        ],
+        "docs": "https://github.com/co60ca/co60ca.github.io"
     },
     "bugs": {
         "list": "https://github.com/co60ca/moz-codecover-ui/issues"
