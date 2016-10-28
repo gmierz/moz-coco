@@ -16,12 +16,43 @@ var Col = require('react-bootstrap/lib/Col');
 var Button = require('react-bootstrap/lib/Button');
 var Nav = require('react-bootstrap/lib/Nav');
 var NavItem = require('react-bootstrap/lib/NavItem');
+var MenuItem = require('react-bootstrap/lib/MenuItem');
+var NavDropdown = require('react-bootstrap/lib/NavDropdown');
 
 var PageStore = require('../stores/PageStore');
 var PageActions = require('../actions/PageActions');
 
 var Client = require('../client/Client');
+var ClientFilter = require("../client/ClientFilter");
 var ClientConstants = require('../client/ClientConstants');
+
+var DEVON = true;
+
+var Errors = {
+  fatal: "fatal",
+  error: "error",
+  warn: "warn",
+  info: "info",
+  callback: function(level, message) {
+    console.log(`${level}: ${message}`); 
+  },
+  handleError: function(level, message) {
+    var perr = "During a previous error a programmer error"
+        + " occurred while processing the previous error";
+    if (!this.callback) {
+      console.log(`${level}: ${message}`); 
+      console.log(perr);
+      return;
+    }
+    if (!this.hasOwnProperty(level) || !(typeof this[level] === 'string')) {
+      this.callback(this.warn, message);
+      this.callback(this.warn, perr);
+      return;
+    }
+    this.callback(level, message);
+  }
+}
+  
 
 var TableHeadData = React.createClass({
   render: function() {
@@ -83,14 +114,31 @@ var NavOptions = React.createClass({
     var items = [];
     if (shown) {
       var allItems = PageStore.getAll();
+      var dirs = {};
       // Object works well with for each
       for (var key in allItems) {
-        items.push(
-          <NavItem 
-          onSelect={this.handleSelect(key)} 
-          key={key}>{allItems[key].title}</NavItem>
-        );
+        if (allItems[key].query.hasOwnProperty('path')) {
+          if (!dirs.hasOwnProperty(allItems[key].query.path)) {
+            dirs[allItems[key].query.path] = []; 
+          }
+          dirs[allItems[key].query.path].push(
+            <MenuItem onSelect={this.handleSelect(key)} key={key}>
+              {allItems[key].title}
+            </MenuItem>
+          );
+            
+        } else {
+          // Root
+          items.push(
+            <NavItem 
+            onSelect={this.handleSelect(key)} 
+            key={key}>{allItems[key].title}</NavItem>
+          );
+        }
       }
+      Object.keys(dirs).forEach((key) => {
+        items.push(<NavDropdown id={key} key={key} title={key}>{dirs[key]}</NavDropdown>);
+      });
     }
     return (
       <Nav stacked activeKey={1} style={{marginTop: '20px'}}>
@@ -108,6 +156,7 @@ var Sidebar = React.createClass({
   componentWillMount: function() {
     PageStore.addChangeListener(this._onChange);
     // Seed the Sidebar with queries
+    // TODO(brad) put this somewhere else
     ClientConstants.allQueries.forEach((q) => {
       PageActions.create(q.name, q.obj);
     });
@@ -133,7 +182,7 @@ var Sidebar = React.createClass({
             "img-responsive" width="150"></img>;
     var banner = 
         <div className={"bottom"}>
-          Coco made with ❤️ by the Code Coverage team
+          Coco made with ♥ by the Code Coverage team
         </div>;
 
     // This creates the animation
@@ -177,9 +226,24 @@ var CocoTable = React.createClass({
     if (this.state.query == null || this.state.query == "") {
       return;
     }
+    // If filter_revision is set we need to modify the revision number
+    queryJSON = this.state.query.remote_request;
+
+    if (this.state.query.filter_revision) {
+      // Mutates original query
+      // TODO(brad) Change revision to be dynamic
+      var revision = "18a8dc43d170";
+      if(!ClientFilter.setRevision(queryJSON, revision)) {
+        Errors.handleError(Errors.warn, "filter_revision was set in query but"
+          + " was not able to be set through a search of the query, data may"
+          + " be not as expected, or represent another revision");
+      }
+    }
+
     Client.makeRequest('activedata.allizom.org',
-        this.state.query.obj, (data) => {
+        this.state.query.remote_request, (data) => {
       // If null do not pre process
+      // TODO(brad) Unsure if this is legal
       this.state.data = data;
       if (this.state.query.processPre) {
         this.state.query.processPre(this, data);
@@ -195,6 +259,7 @@ var CocoTable = React.createClass({
           </div>
       );
     }
+
     // Any row processing
     var rows = this.state.data.rows;
     if (this.state.query.processBody) {
@@ -202,13 +267,17 @@ var CocoTable = React.createClass({
     }
     rows = addIndexArray(rows);
     rows = rows.map((row) => {
-      return <TableRowData key={row.id} data={addIndexArray(row.val)}/>});
+      return <TableRowData key={row.id} data={addIndexArray(row.val)}/>
+    });
+
     // Any head processing
     var headers = this.state.data.headers;
+
     // Variable usage of processHeaders
     if (this.state.query.processHeaders) {
       headers = this.state.query.processHeaders(headers);
     }
+
     return (
       <Table striped condensed hover>
         <TableHeadData data={addIndexArray(headers)}/>
@@ -262,3 +331,9 @@ ReactDOM.render(
   <TopLevel />
   , document.getElementById('react-root')
 );
+
+if (DEVON) {
+  Errors.handleError(Errors.warn, "Coco evelopment mode is currently on,"
+    + " this is not a final project and should be expected to have no"
+    + " reliability");
+}

@@ -16,7 +16,8 @@ function headlineCase(str) {
 }
 
 function expandConnectors(str) {
-  return str.replace(/\-/g, ' ').replace(/\_/g, ' ').replace(/\ {1,}/g, ' ');
+  return str.replace(/\-/g, ' ').replace(/\./g, ' ')
+            .replace(/\_/g, ' ').replace(/\ {1,}/g, ' ');
 }
 
 function header(str) {
