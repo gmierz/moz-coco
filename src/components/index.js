@@ -18,6 +18,8 @@ var Nav = require('react-bootstrap/lib/Nav');
 var NavItem = require('react-bootstrap/lib/NavItem');
 var MenuItem = require('react-bootstrap/lib/MenuItem');
 var NavDropdown = require('react-bootstrap/lib/NavDropdown');
+var ControlLabel = require('react-bootstrap/lib/ControlLabel');
+var FormControl = require('react-bootstrap/lib/FormControl');
 
 var PageStore = require('../stores/PageStore');
 var PageActions = require('../actions/PageActions');
@@ -68,23 +70,23 @@ var TableHeadData = React.createClass({
 });
 
 var TableCell = React.createClass({
-  onCellClick: function(event) {
-    // Set selected to this prop data
-    PageStore.setSelected(this.props.data);
-    // Drill Down Function 
-  },
   render: function() {
-    return (<td onClick={this.onCellClick}>{this.props.data}</td>);
+    return (<td>{this.props.data}</td>);
   }
 });
 
 var TableRowData = React.createClass({
+  onCellClick: function(event) {
+    // Set selected to this prop data
+    PageActions.setSelected(this.props.data.rows);
+    // Drill Down Function 
+  },
   render: function() {
     var items = this.props.data.rows.map((d) => {
       return <TableCell key={d.id} data={d.val}></TableCell>;
     });
     return (
-      <tr>
+      <tr onClick={this.onCellClick}>
         {items}
       </tr>
     );
@@ -159,6 +161,36 @@ var NavOptions = React.createClass({
   }
 });
 
+var PropertyViewer = React.createClass({
+  getInitialState: function() {
+    return {"hidden": true};
+  },
+  componentWillMount: function() {
+    PageStore.addChangeListener(this._onChange, 'drill');
+    this._onChange();
+  },
+  componentWillUnmount: function() {
+    PageStore.removeChangeListener(this._onChange, 'drill');
+  },
+  _onChange: function() {
+    var ctx = PageStore.getContext();
+    if (ctx) {
+      this.setState({hidden: false, value: ctx});
+    } else {
+      this.setState({hidden: true});
+    }
+  },
+  render: function() {
+    if (this.state.hidden) return (<div></div>);
+    return (
+      <form>
+      <ControlLabel>{this.props.header}</ControlLabel>
+      <FormControl type="text" value={this.state.value}
+      placeholder="Context" disabled />
+      </form>
+    );
+  }
+});
 
 var Sidebar = React.createClass({
   getInitialState: function() {
@@ -196,13 +228,15 @@ var Sidebar = React.createClass({
           Coco made with ♥ by the Code Coverage team
         </div>;
 
+    var contextview = <PropertyViewer header={'Context'} />;
+
     // This creates the animation
     if (this.state.collapsed) {
       classnametxt += " collapsed";
     }
     var displayChildren = true;
     if (this.state.collapsed || this.state.opening) {
-      imgico = banner = [];
+      imgico = banner = contextview = [];
       displayChildren = false;
     }
     return (
@@ -213,7 +247,8 @@ var Sidebar = React.createClass({
           }}/>
           {imgico}
         </div>
-        {displayChildren ? this.props.children : false} 
+        {displayChildren ? this.props.children : false}
+        {contextview}
         {banner}
       </div>
     );
@@ -251,8 +286,17 @@ var CocoTable = React.createClass({
       }
     }
 
+    if (this.state.query.drills_down && PageStore.getSelected()) {
+      var ddresults = this.state.query.drillDown(PageStore.getSelected(), 
+          PageStore.getContext());
+      // ddresults.context remote_request
+      // TODO(brad) This seems bad
+      PageActions.setContext(ddresults.context);
+      queryJSON = ddresults.remote_request;
+    }
+
     Client.makeRequest('activedata.allizom.org',
-        this.state.query.remote_request, (data) => {
+        queryJSON, (data) => {
       // If null do not pre process
       // TODO(brad) Unsure if this is legal
       this.state.data = data;
@@ -347,7 +391,7 @@ ReactDOM.render(
 );
 
 if (DEVON) {
-  Errors.handleError(Errors.warn, "Coco evelopment mode is currently on,"
+  Errors.handleError(Errors.warn, "Coco Development mode is currently on,"
     + " this is not a final project and should be expected to have no"
     + " reliability");
 }

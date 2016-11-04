@@ -212,9 +212,13 @@ var drilldowns = [
         ],
         "groupby":[{"name":"filename","value":"source.file.name"}]
       },
-      drillDown: (selectedRow, drillDownContext) => {
+      drillDown: function(selectedRow, drillDownContext) {
         if (!drillDownContext) {
           drillDownContext = 'chrome://';
+        }
+        var dotstarindex = drillDownContext.indexOf(".*");
+        if (dotstarindex != -1) {
+          drillDownContext = drillDownContext.substring(0, dotstarindex);
         }
         // selectedRow
         // "chrome://blah/foo/bar/"
@@ -222,15 +226,15 @@ var drilldowns = [
         // "chrome://"
 
         // blah/foo/bar/
-        var remainder = selectedRow[0].substring(drillDownContext.length);
+        var remainder = selectedRow[0].val.substring(drillDownContext.length);
         
         // blah 
         var next_path = remainder.split('/')[0];
-        drillDownContext = drillDownContext + next+path + '/.*';
+        drillDownContext = drillDownContext + next_path + '/.*';
 
         var remote_request_copy = JSON.parse(JSON.stringify(this.remote_request));
-
-        ClientFilter.setProp(remote_request_copy, '.', 'source.file.name', 
+        
+        ClientFilter.setProp(remote_request_copy, 'source.file.name', 
             drillDownContext);
         return {context: drillDownContext, remote_request: remote_request_copy};
       },

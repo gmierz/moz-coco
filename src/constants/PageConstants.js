@@ -21,4 +21,5 @@ module.exports = keyMirror({
   UPDATE_QUERY: null,
   SET_CONTEXT: null,
   SET_SELECTED: null,
+  SET_REVISION: null
 });

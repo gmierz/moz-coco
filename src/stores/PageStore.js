@@ -14,9 +14,11 @@ var keyMirror = require('keymirror');
 
 var CHANGE_EVENT = 'change';
 var QUERY_EVENT = 'query';
+var DRILL_EVENT = 'drill';
 
 var _selected = null;
 var _context = null;
+var _revision = null;
 var _pages = {};
 var _current_page = 0;
 var _id_incrementor = 0;
@@ -40,6 +42,8 @@ function switchPage(id) {
   if (id in _pages) {
     _current_page = id;
   }
+  setContext(null);
+  setSelected(null);
 }
 
 function toggle_sidebar() {
@@ -52,10 +56,15 @@ function updateQuery(q) {
 
 function setContext(q) {
   _context = q;
+  PageStore.emitChange(DRILL_EVENT);
 }
 
 function setSelected(q) {
   _selected = q;
+}
+
+function setRevision(q) {
+  _revision = q;
 }
 
 var PageStore = Object.assign({}, EventEmitter.prototype, {
@@ -113,12 +122,17 @@ AppDispatcher.register(function(action) {
       break;
     case PageConstants.SET_CONTEXT:
       setContext(action.set);
-      PageStore.emitChange(QUERY_EVENT);
+      // Don't emit to prevent loops
+      // Emitter moved to setContext
       break;
     case PageConstants.SET_SELECTED:
-      setSelected(q);
+      setSelected(action.set);
       PageStore.emitChange(QUERY_EVENT);
       break; 
+    case PageConstants.SET_REVISION:
+      setRevision(action.set);
+      PageStore.emitChange(QUERY_EVENT);
+      break;
     default:
   }
 });
