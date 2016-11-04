@@ -11,7 +11,8 @@
  * This is intended to be the location of the stored queries
  */
 
-var StringManipulation = require('../StringManipulation'); 
+var StringManipulation = require('../StringManipulation');
+var ClientFilter = require('./ClientFilter');
 
 /* Queries have the following objects:
  * name, which is the display string,
@@ -177,5 +178,78 @@ var queriescc_presenter = [{
   },
 ];
 
+/* 
+ * Single example of drilldowns
+ */
+
+var drilldowns = [
+  { 
+    name: 'Drill Down Example',
+    obj:  {
+      filter_revision: true,
+      drills_down: true,
+      remote_request: {
+        "limit":100,
+        "from":"coverage-summary",
+        "where":{"and":[
+          {"eq":{"build.revision12":"18a8dc43d170"}},
+          {"missing":"test.url"},
+          {"regexp":{"source.file.name":"chrome://.*"}},
+          {"not":{"regexp":{"source.file.name":".*/test/.*"}}},
+          {"not":{"regexp":{"source.file.name":".*/tests/.*"}}}
+        ]},
+        "select":[
+          {
+            "aggregate":"sum",
+            "name":"covered",
+            "value":"source.file.total_covered"
+          },
+          {
+            "aggregate":"sum",
+            "name":"uncovered",
+            "value":"source.file.total_uncovered"
+          }
+        ],
+        "groupby":[{"name":"filename","value":"source.file.name"}]
+      },
+      drillDown: (selectedRow, drillDownContext) => {
+        if (!drillDownContext) {
+          drillDownContext = 'chrome://';
+        }
+        // selectedRow
+        // "chrome://blah/foo/bar/"
+        // drillDownContext
+        // "chrome://"
+
+        // blah/foo/bar/
+        var remainder = selectedRow[0].substring(drillDownContext.length);
+        
+        // blah 
+        var next_path = remainder.split('/')[0];
+        drillDownContext = drillDownContext + next+path + '/.*';
+
+        var remote_request_copy = JSON.parse(JSON.stringify(this.remote_request));
+
+        ClientFilter.setProp(remote_request_copy, '.', 'source.file.name', 
+            drillDownContext);
+        return {context: drillDownContext, remote_request: remote_request_copy};
+      },
+      processPre: (comp, d)=>{
+        comp.setState({
+          data: {
+            headers: d.header,
+            rows: d.data
+           }
+        });
+      },
+      processHeaders: (d) => {
+        return d.map(StringManipulation.header)
+      },
+      processBody: null
+    }
+  }
+];
+
 Array.prototype.push.apply(allQueries, queriescc_presenter);
+Array.prototype.push.apply(allQueries, drilldowns);
 module.exports = {allQueries};

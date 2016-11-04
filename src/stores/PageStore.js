@@ -15,6 +15,8 @@ var keyMirror = require('keymirror');
 var CHANGE_EVENT = 'change';
 var QUERY_EVENT = 'query';
 
+var _selected = null;
+var _context = null;
 var _pages = {};
 var _current_page = 0;
 var _id_incrementor = 0;
@@ -48,6 +50,14 @@ function updateQuery(q) {
   _selected_query = q;
 }
 
+function setContext(q) {
+  _context = q;
+}
+
+function setSelected(q) {
+  _selected = q;
+}
+
 var PageStore = Object.assign({}, EventEmitter.prototype, {
   
   getQuery: function() {
@@ -61,7 +71,15 @@ var PageStore = Object.assign({}, EventEmitter.prototype, {
   getCollapsed: function() {
     return _sidebar_collapsed;
   },
+
+  getContext: function() {
+    return _context;
+  },
   
+  getSelected: function() {
+    return _selected;
+  },
+
   emitChange: function(evnt = CHANGE_EVENT) {
     this.emit(evnt);
   },
@@ -93,7 +111,14 @@ AppDispatcher.register(function(action) {
       updateQuery();
       PageStore.emitChange(QUERY_EVENT);
       break;
-      
+    case PageConstants.SET_CONTEXT:
+      setContext(action.set);
+      PageStore.emitChange(QUERY_EVENT);
+      break;
+    case PageConstants.SET_SELECTED:
+      setSelected(q);
+      PageStore.emitChange(QUERY_EVENT);
+      break; 
     default:
   }
 });

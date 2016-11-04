@@ -18,5 +18,7 @@ module.exports = keyMirror({
   PAGE_ADD: null,
   PAGE_CHANGE: null,
   SIDEBAR_TOGGLE: null,
-  UPDATE_QUERY: null
+  UPDATE_QUERY: null,
+  SET_CONTEXT: null,
+  SET_SELECTED: null,
 });

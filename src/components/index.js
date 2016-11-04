@@ -67,10 +67,21 @@ var TableHeadData = React.createClass({
   }
 });
 
+var TableCell = React.createClass({
+  onCellClick: function(event) {
+    // Set selected to this prop data
+    PageStore.setSelected(this.props.data);
+    // Drill Down Function 
+  },
+  render: function() {
+    return (<td onClick={this.onCellClick}>{this.props.data}</td>);
+  }
+});
+
 var TableRowData = React.createClass({
   render: function() {
-    var items = this.props.data.map((d) => {
-      return <td key={d.id}>{d.val}</td>;
+    var items = this.props.data.rows.map((d) => {
+      return <TableCell key={d.id} data={d.val}></TableCell>;
     });
     return (
       <tr>
@@ -211,7 +222,7 @@ var Sidebar = React.createClass({
 
 var CocoTable = React.createClass({
   getInitialState: function() {
-    return {query: PageStore.getQuery(), data: null};
+    return {query: PageStore.getQuery(), data: null, drillDownContext: null};
   },
   componentWillMount: function() {
     this.sendQuery();
@@ -267,7 +278,10 @@ var CocoTable = React.createClass({
     }
     rows = addIndexArray(rows);
     rows = rows.map((row) => {
-      return <TableRowData key={row.id} data={addIndexArray(row.val)}/>
+      return <TableRowData key={row.id} data={{
+        rows: addIndexArray(row.val),
+      }}
+      />
     });
 
     // Any head processing

@@ -32,7 +32,22 @@ var PageActions = {
     AppDispatcher.dispatch({
       actionType: PageConstants.SIDEBAR_TOGGLE,
     });
-  }
+  },
+
+  setContext: function(q) {
+    AppDispatcher.dispatch({
+      actionType: PageConstants.SET_CONTEXT,
+      set: q
+    });
+  },
+
+  setSelected: function(q) {
+    AppDispatcher.dispatch({
+      actionType: PageConstants.SET_SELECTED,
+      set: q
+    });
+  } 
+
 };
 
 module.exports = PageActions;
