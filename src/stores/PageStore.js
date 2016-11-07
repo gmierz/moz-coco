@@ -88,6 +88,10 @@ var PageStore = Object.assign({}, EventEmitter.prototype, {
   getSelected: function() {
     return _selected;
   },
+  
+  getRevision: function() {
+    return _revision;
+  },
 
   emitChange: function(evnt = CHANGE_EVENT) {
     this.emit(evnt);

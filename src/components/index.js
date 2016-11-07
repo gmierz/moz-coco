@@ -20,6 +20,9 @@ var MenuItem = require('react-bootstrap/lib/MenuItem');
 var NavDropdown = require('react-bootstrap/lib/NavDropdown');
 var ControlLabel = require('react-bootstrap/lib/ControlLabel');
 var FormControl = require('react-bootstrap/lib/FormControl');
+var InputGroup = require('react-bootstrap/lib/InputGroup');
+var FormGroup = require('react-bootstrap/lib/FormGroup');
+var ControlLabel = require('react-bootstrap/lib/ControlLabel');
 
 var PageStore = require('../stores/PageStore');
 var PageActions = require('../actions/PageActions');
@@ -54,7 +57,41 @@ var Errors = {
     this.callback(level, message);
   }
 }
-  
+
+var RevisionSetter = React.createClass({
+  getInitialState: function() {
+    return {revision: PageStore.getRevision()} 
+  },
+  componentDidMount: function() {
+    PageStore.addChangeListener(this._onChange, 'query');
+  },
+  componentWillUnmount: function() {
+    PageStore.removeChangeListener(this._onChange, 'query');
+  },
+  _onChange: function() {
+    this.setState({revision: PageStore.getRevision()});
+  },
+  handleR: function(e) {
+    this.setState({revision: e.target.value});
+  },
+  doSet: function() {
+    PageActions.setRevision(this.state.revision);
+  },
+  render: function() {
+    return (
+      <FormGroup>
+        <ControlLabel>Revision ID</ControlLabel>
+        <InputGroup>
+          <FormControl onChange={this.handleR} type="text" placeholder="Revision"
+            value={this.state.revision || ""} />
+          <InputGroup.Button>
+            <Button onClick={this.doSet}>Set</Button>
+          </InputGroup.Button>
+        </InputGroup>
+      </FormGroup>
+    );
+  }
+});
 
 var TableHeadData = React.createClass({
   render: function() {
@@ -85,6 +122,9 @@ var TableRowData = React.createClass({
     var items = this.props.data.rows.map((d) => {
       return <TableCell key={d.id} data={d.val}></TableCell>;
     });
+    if (!this.props.drill_down) {
+      return (<tr>{items}</tr>);
+    }
     return (
       <tr onClick={this.onCellClick}>
         {items}
@@ -131,11 +171,13 @@ var NavOptions = React.createClass({
       // Object works well with for each
       for (var key in allItems) {
         if (allItems[key].query.hasOwnProperty('path')) {
+          // Has path
           if (!dirs.hasOwnProperty(allItems[key].query.path)) {
             dirs[allItems[key].query.path] = []; 
           }
           dirs[allItems[key].query.path].push(
             <MenuItem onSelect={this.handleSelect(key)} key={key}>
+              {allItems[key].query.filter_revision && "R* "}
               {allItems[key].title}
             </MenuItem>
           );
@@ -145,7 +187,10 @@ var NavOptions = React.createClass({
           items.push(
             <NavItem 
             onSelect={this.handleSelect(key)} 
-            key={key}>{allItems[key].title}</NavItem>
+            key={key}>
+              {allItems[key].query.filter_revision && "R* "}
+              {allItems[key].title}
+            </NavItem>
           );
         }
       }
@@ -198,6 +243,7 @@ var Sidebar = React.createClass({
   },
   componentWillMount: function() {
     PageStore.addChangeListener(this._onChange);
+    PageStore.addChangeListener(this._onChange, 'query');
     // Seed the Sidebar with queries
     // TODO(brad) put this somewhere else
     ClientConstants.allQueries.forEach((q) => {
@@ -206,6 +252,7 @@ var Sidebar = React.createClass({
   },
   componentWillUnmount: function() {
     PageStore.removeChangeListener(this._onChange);
+    PageStore.removeChangeListener(this._onChange, 'query');
   },
   _onChange: function() {
     var pscollapsed = PageStore.getCollapsed();
@@ -247,8 +294,9 @@ var Sidebar = React.createClass({
           }}/>
           {imgico}
         </div>
-        {displayChildren ? this.props.children : false}
+        {displayChildren && this.props.children}
         {contextview}
+        {displayChildren && PageStore.getQuery().filter_revision && <RevisionSetter />}
         {banner}
       </div>
     );
@@ -260,6 +308,9 @@ var CocoTable = React.createClass({
     return {query: PageStore.getQuery(), data: null, drillDownContext: null};
   },
   componentWillMount: function() {
+    if (!PageStore.getRevision()) {
+      PageActions.setRevision("d19d1d2136bb");
+    }
     this.sendQuery();
     PageStore.addChangeListener(this._onChange, 'query');
   },
@@ -273,12 +324,13 @@ var CocoTable = React.createClass({
       return;
     }
     // If filter_revision is set we need to modify the revision number
-    queryJSON = this.state.query.remote_request;
+    var queryJSON = this.state.query.remote_request;
 
     if (this.state.query.filter_revision) {
       // Mutates original query
       // TODO(brad) Change revision to be dynamic
-      var revision = "18a8dc43d170";
+      var revision = PageStore.getRevision();
+
       if(!ClientFilter.setRevision(queryJSON, revision)) {
         Errors.handleError(Errors.warn, "filter_revision was set in query but"
           + " was not able to be set through a search of the query, data may"
@@ -321,8 +373,10 @@ var CocoTable = React.createClass({
       rows = this.state.query.processBody(rows);
     }
     rows = addIndexArray(rows);
+
+    var drill_down = this.state.query.hasOwnProperty("drills_down");
     rows = rows.map((row) => {
-      return <TableRowData key={row.id} data={{
+      return <TableRowData drill_down={drill_down} key={row.id} data={{
         rows: addIndexArray(row.val),
       }}
       />
