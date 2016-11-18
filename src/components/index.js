@@ -328,7 +328,6 @@ var CocoTable = React.createClass({
 
     if (this.state.query.filter_revision) {
       // Mutates original query
-      // TODO(brad) Change revision to be dynamic
       var revision = PageStore.getRevision();
 
       if(!ClientFilter.setRevision(queryJSON, revision)) {
@@ -346,7 +345,8 @@ var CocoTable = React.createClass({
       PageActions.setContext(ddresults.context);
       queryJSON = ddresults.remote_request;
     }
-
+    
+    
     Client.makeRequest('activedata.allizom.org',
         queryJSON, (data) => {
       // If null do not pre process
@@ -355,7 +355,7 @@ var CocoTable = React.createClass({
       if (this.state.query.processPre) {
         this.state.query.processPre(this, data);
       }
-    }); 
+    });
   },
   render: function() {
     if (this.state.data == null) {

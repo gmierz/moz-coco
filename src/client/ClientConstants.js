@@ -37,35 +37,7 @@ var deepcopy = require("lodash.clonedeep");
  *   may be null.
  */
 var allQueries = [
-  {
-    name: "Recent Builds by Date",
-    obj: {
-      remote_request: {
-      "from":"coverage-summary",
-        "limit":1000,
-        "groupby":["build.date","build.revision12"]
-      },
-      processPre: (comp, d)=>{
-        comp.setState({
-          data: {
-            headers: d.header,
-            rows: d.data
-           }
-        });
-      },
-      processHeaders: (d) => {
-        return d.map(StringManipulation.header)
-      },
-      processBody: (d) => {
-        return d.map(r => {
-          if (r[0]) {
-            r[0] = new Date(r[0]*1000).toISOString();
-          }
-          return r;
-        });
-      }
-    }
-  },
+
   {
     name: 'All Test Files',
     obj: {
@@ -93,6 +65,41 @@ var allQueries = [
       processBody: null
     }
   },
+
+  {
+    name: "Recent Builds by Date",
+    obj: {
+      remote_request: {
+      "from":"coverage-summary",
+        "limit":1000,
+        "groupby":["build.date","build.revision12"]
+      },
+      processPre: (comp, d)=>{
+        d.data.sort((b, a) => {
+          if (a[0] == null) return -1;
+          if (b[0] == null) return 1;
+          return parseInt(a[0]) < parseInt(b[0]) ? -1 : 1;
+        });
+        comp.setState({
+          data: {
+            headers: d.header,
+            rows: d.data
+           }
+        });
+      },
+      processHeaders: (d) => {
+        return d.map(StringManipulation.header)
+      },
+      processBody: (d) => {
+        return d.map(r => {
+          if (r[0]) {
+            r[0] = new Date(r[0]*1000).toISOString();
+          }
+          return r;
+        });
+      }
+    }
+  }
 ];
 
 // This section intends to implement the queries in
@@ -214,6 +221,98 @@ var drill = {
   }
 };
 
+
+var directoryDrillDown = { 
+  name: 'Directory Drilldown Folders',
+  obj:  {
+    filter_revision: true,
+    drills_down: true,
+    drilldown_context: '',
+    folders: true,
+    remote_request: {
+      "limit":100,
+      "from":"coverage-summary",
+      "where":{"and":[
+        {"eq":{"build.revision12":"18a8dc43d170"}},
+        {"missing":"test.url"},
+        {"regexp":{"source.file.name":"chrome://.*"}},
+        {"not":{"regexp":{"source.file.name":".*/test/.*"}}},
+        {"not":{"regexp":{"source.file.name":".*/tests/.*"}}}
+      ]},
+      "select":[
+        {
+          "aggregate":"sum",
+          "name":"covered",
+          "value":"source.file.total_covered"
+        },
+        {
+          "aggregate":"sum",
+          "name":"uncovered",
+          "value":"source.file.total_uncovered"
+        }
+      ],
+      "groupby":[{"name":"filename","value":"source.file.name"}]
+    },
+    drillDown: function(selectedRow, drillDownContext) {
+      if (!drillDownContext) {
+        drillDownContext = this.drilldown_context;
+      }
+      var dotstarindex = drillDownContext.indexOf(".*");
+      if (dotstarindex != -1) {
+        drillDownContext = drillDownContext.substring(0, dotstarindex);
+      }
+      var remainder = selectedRow[0].val.substring(drillDownContext.length);
+      var next_path = remainder.split('/')[0];
+      drillDownContext = drillDownContext + next_path + '/.*';
+
+      var remote_request_copy = JSON.parse(JSON.stringify(this.remote_request));
+      
+      ClientFilter.setProp(remote_request_copy, 'source.file.name', 
+          drillDownContext);
+      return {
+        context: drillDownContext, remote_request: remote_request_copy,
+        inFolder: true
+      };
+    },
+    processPre: function(comp, d) {
+      comp.setState({
+        data: {
+          headers: d.header,
+          rows: d.data
+         }
+      });
+    },
+    processHeaders: function(d) {
+      return d.map(StringManipulation.header)
+    },
+    processBody: null,
+    getFolderWithContext: function(c) {
+      var path = c.context.substr(c.context.indexOf("//")+1, c.context.lastIndexOf("/.*") + 1);
+      var folders = getFolders();
+      var directorySplit = path.split("/");
+      var res = folders["chrome://"];
+      for (var i = 2; i < directorySplit.length; i++) {
+        res = res[directorySplit[i]];
+      }
+      return res; 
+    },
+    getFolders: function() { 
+      return {
+        "chrome://": {
+          "browser":null,
+          "extensions":null,
+          "global":null,
+          "marionette":null,
+          "mochikit":null,
+          "pocket":null,
+          "satchel":null,
+          "specialpowers":null
+        }
+      };
+    }
+  }
+};
+
 var mdrilldowns = [];
 
 var variants = ["browser", "extensions", "global", "marionette", "mochikit",
@@ -226,6 +325,7 @@ variants.forEach((v) => {
   
   mdrilldowns.push(copy);
 });
+allQueries.push(directoryDrillDown);
 Array.prototype.push.apply(allQueries, queriescc_presenter);
 Array.prototype.push.apply(allQueries, mdrilldowns);
 module.exports = {allQueries};
