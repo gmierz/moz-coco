@@ -345,17 +345,30 @@ var CocoTable = React.createClass({
       PageActions.setContext(ddresults.context);
       queryJSON = ddresults.remote_request;
     }
-    
-    
-    Client.makeRequest('activedata.allizom.org',
-        queryJSON, (data) => {
-      // If null do not pre process
-      // TODO(brad) Unsure if this is legal
-      this.state.data = data;
-      if (this.state.query.processPre) {
-        this.state.query.processPre(this, data);
+    if (this.state.query.query_override) {
+      var prom;
+      if (ddresults) {
+        prom = this.state.query.override(
+            ddresults.remote_request, ddresults.context);
+      } else {
+        prom = this.state.query.override({}, "");
       }
-    });
+      prom.then((val) => {
+        if (this.state.query.processPre) {
+          this.state.query.processPre(this, val);
+        }
+      });
+    } else {
+      Client.makeRequest('activedata.allizom.org',
+          queryJSON, (data) => {
+        // If null do not pre process
+        // TODO(brad) Unsure if this is legal
+        this.state.data = data;
+        if (this.state.query.processPre) {
+          this.state.query.processPre(this, this.state.data);
+        }
+      });
+    }
   },
   render: function() {
     if (this.state.data == null) {

@@ -12,6 +12,7 @@
  */
 
 var StringManipulation = require('../StringManipulation');
+var Client = require('../client/Client');
 var ClientFilter = require('./ClientFilter');
 var deepcopy = require("lodash.clonedeep");
 
@@ -227,8 +228,8 @@ var directoryDrillDown = {
   obj:  {
     filter_revision: true,
     drills_down: true,
-    drilldown_context: '',
-    folders: true,
+    drilldown_context: 'chrome://',
+    query_override: true,
     remote_request: {
       "limit":100,
       "from":"coverage-summary",
@@ -250,8 +251,7 @@ var directoryDrillDown = {
           "name":"uncovered",
           "value":"source.file.total_uncovered"
         }
-      ],
-      "groupby":[{"name":"filename","value":"source.file.name"}]
+      ]
     },
     drillDown: function(selectedRow, drillDownContext) {
       if (!drillDownContext) {
@@ -261,18 +261,48 @@ var directoryDrillDown = {
       if (dotstarindex != -1) {
         drillDownContext = drillDownContext.substring(0, dotstarindex);
       }
-      var remainder = selectedRow[0].val.substring(drillDownContext.length);
-      var next_path = remainder.split('/')[0];
-      drillDownContext = drillDownContext + next_path + '/.*';
+      drillDownContext = drillDownContext + selectedRow[0].val + '/.*';
 
       var remote_request_copy = JSON.parse(JSON.stringify(this.remote_request));
       
       ClientFilter.setProp(remote_request_copy, 'source.file.name', 
           drillDownContext);
       return {
-        context: drillDownContext, remote_request: remote_request_copy,
-        inFolder: true
+        context: drillDownContext, remote_request: remote_request_copy
       };
+    },
+    override: function(query, context) {
+      var dirs = [];
+      var dirobj = this.getFolderWithContext(context);
+      context = context || "chrome://.*";
+
+      var tasks = [];
+      for (var prop in dirobj) {
+        var job = this.aggregateDir(prop,
+            context.substring(0, context.lastIndexOf("/.*") + 1) + prop + "/.*");
+        tasks.push(job);
+      }
+      
+      return new Promise((res, rej) => {
+        Promise.all(tasks).then((val) => {
+          var headers = ["Directory", "Covered", "Uncovered"];
+          res({
+            header: headers,
+            data: val
+          });
+        });
+      });
+    },
+    aggregateDir: function(prop, context) {
+      var queryJSON = deepcopy(this.remote_request);
+      ClientFilter.setProp(queryJSON, 'source.file.name', context);
+
+      return new Promise((res, rej) => {
+        Client.makeRequest('activedata.allizom.org',
+            queryJSON, (data) => {
+          res([prop, data.data.uncovered, data.data.covered]);
+        });
+      });
     },
     processPre: function(comp, d) {
       comp.setState({
@@ -287,11 +317,11 @@ var directoryDrillDown = {
     },
     processBody: null,
     getFolderWithContext: function(c) {
-      var path = c.context.substr(c.context.indexOf("//")+1, c.context.lastIndexOf("/.*") + 1);
-      var folders = getFolders();
+      var path = c.substring(c.indexOf("//")+1, c.lastIndexOf("/.*"));
+      var folders = this.getFolders();
       var directorySplit = path.split("/");
       var res = folders["chrome://"];
-      for (var i = 2; i < directorySplit.length; i++) {
+      for (var i = 1; i < directorySplit.length; i++) {
         res = res[directorySplit[i]];
       }
       return res; 
@@ -299,7 +329,7 @@ var directoryDrillDown = {
     getFolders: function() { 
       return {
         "chrome://": {
-          "browser":null,
+          "browser":{"just a test":null},
           "extensions":null,
           "global":null,
           "marionette":null,
