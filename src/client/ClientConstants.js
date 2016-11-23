@@ -39,33 +39,6 @@ var deepcopy = require("lodash.clonedeep");
  */
 var allQueries = [
 
-  {
-    name: 'All Test Files',
-    obj: {
-      filter_revision: true,
-      remote_request: {
-        "from":"coverage-summary",
-        "edges":"source.file.name",
-        "where":{"and":[
-          {"eq":{"build.revision12":"18a8dc43d170"}},
-          {"regexp":{"source.file.name":".*/test/.*"}}
-        ]},
-        "limit":10000,
-      },
-      processPre: (comp, d)=>{
-        comp.setState({
-          data: {
-            headers: ["Source File Name"],
-            rows: d.edges[0].domain.partitions.map((o) => {return [o.name];}) 
-           }
-        });
-      },
-      processHeaders: (d) => {
-        return d.map(StringManipulation.header)
-      },
-      processBody: null
-    }
-  },
 
   {
     name: "Recent Builds by Date",
@@ -100,7 +73,34 @@ var allQueries = [
         });
       }
     }
-  }
+  },
+  {
+    name: 'All Test Files',
+    obj: {
+      filter_revision: true,
+      remote_request: {
+        "from":"coverage-summary",
+        "edges":"source.file.name",
+        "where":{"and":[
+          {"eq":{"build.revision12":"18a8dc43d170"}},
+          {"regexp":{"source.file.name":".*/test/.*"}}
+        ]},
+        "limit":10000,
+      },
+      processPre: (comp, d)=>{
+        comp.setState({
+          data: {
+            headers: ["Source File Name"],
+            rows: d.edges[0].domain.partitions.map((o) => {return [o.name];}) 
+           }
+        });
+      },
+      processHeaders: (d) => {
+        return d.map(StringManipulation.header)
+      },
+      processBody: null
+    }
+  },
 ];
 
 // This section intends to implement the queries in
@@ -229,6 +229,7 @@ var directoryDrillDown = {
     filter_revision: true,
     drills_down: true,
     drilldown_context: 'chrome://',
+    format_headers: true,
     query_override: true,
     remote_request: {
       "limit":100,
@@ -278,14 +279,19 @@ var directoryDrillDown = {
 
       var tasks = [];
       for (var prop in dirobj) {
-        var job = this.aggregateDir(prop,
+        var job = this.aggregateDir(query, prop,
             context.substring(0, context.lastIndexOf("/.*") + 1) + prop + "/.*");
         tasks.push(job);
       }
       
       return new Promise((res, rej) => {
         Promise.all(tasks).then((val) => {
-          var headers = ["Directory", "Covered", "Uncovered"];
+          var colours = ["#0f0", "#f0c04e", "#f00"];
+          var levels = [0.9, 0.85, 0.0]; 
+          var headers = ["Directory", 
+                         {title: "Bar", type:"bar", colours: colours, levels: levels},
+                         {title: "Covered %", type:"bg", colours: colours, levels: levels}, 
+                         {title: "Covered Lines", type:"bg", colours: colours, levels: levels}];
           res({
             header: headers,
             data: val
@@ -293,14 +299,20 @@ var directoryDrillDown = {
         });
       });
     },
-    aggregateDir: function(prop, context) {
-      var queryJSON = deepcopy(this.remote_request);
+    aggregateDir: function(query, prop, context) {
+      // TODO(brad) this should use query from override
+      var queryJSON = deepcopy(query);
       ClientFilter.setProp(queryJSON, 'source.file.name', context);
 
       return new Promise((res, rej) => {
         Client.makeRequest('activedata.allizom.org',
             queryJSON, (data) => {
-          res([prop, data.data.uncovered, data.data.covered]);
+          var cov = data.data.covered;
+          var ucov = data.data.uncovered;
+          var lines = cov + ucov;
+          res([prop, cov/lines, 
+              {text: `${((cov/lines)*100).toPrecision(3)} %`, val: cov/lines}, 
+              {text: `${cov}/${lines}`, val: cov/lines}]);
         });
       });
     },
@@ -329,11 +341,11 @@ var directoryDrillDown = {
     getFolders: function() { 
       return {
         "chrome://": {
-          "browser":{"just a test":null},
-          "extensions":null,
-          "global":null,
-          "marionette":null,
-          "mochikit":null,
+          "browser":{"content":{"downloads": null, "places": null}},
+          "extensions":{"content": null},
+          "global":{"content": {"bindings": null}},
+          "marionette":{"content": null},
+          "mochikit":{"content": null},
           "pocket":null,
           "satchel":null,
           "specialpowers":null

@@ -17,6 +17,7 @@ var Button = require('react-bootstrap/lib/Button');
 var Nav = require('react-bootstrap/lib/Nav');
 var NavItem = require('react-bootstrap/lib/NavItem');
 var MenuItem = require('react-bootstrap/lib/MenuItem');
+var ProgressBar = require('react-bootstrap/lib/ProgressBar');
 var NavDropdown = require('react-bootstrap/lib/NavDropdown');
 var ControlLabel = require('react-bootstrap/lib/ControlLabel');
 var FormControl = require('react-bootstrap/lib/FormControl');
@@ -96,19 +97,17 @@ var RevisionSetter = React.createClass({
 var TableHeadData = React.createClass({
   render: function() {
     var items = this.props.data.map((d) => {
-      return <th key={d.id}>{d.val}</th>;
+      if (typeof(d.val) == "string") {
+        return <th key={d.id}>{d.val}</th>;
+      } else {
+        return <th key={d.id}>{d.val.title}</th>;
+      }
     });
     return (
       <thead><tr>
         {items}
       </tr></thead>
     );
-  }
-});
-
-var TableCell = React.createClass({
-  render: function() {
-    return (<td>{this.props.data}</td>);
   }
 });
 
@@ -119,9 +118,45 @@ var TableRowData = React.createClass({
     // Drill Down Function 
   },
   render: function() {
-    var items = this.props.data.rows.map((d) => {
-      return <TableCell key={d.id} data={d.val}></TableCell>;
-    });
+    if (this.props.data.headers) {
+      var items = [];
+      var headers = this.props.data.headers;
+      var cells = this.props.data.rows;
+      for (var i = 0; i < headers.length; i++) {
+        if (typeof(headers[i]) == "string") {
+          items.push(<td key={cells[i].id}>{cells[i].val}</td>);
+        }
+        else if (headers[i].type == "bg") {
+          for (var ci = 0; ci < headers[i].levels.length; ci++) {
+            if (cells[i].val.val >= headers[i].levels[ci]) {
+              var bgcol = headers[i].colours[ci];
+              break;
+            }
+          }
+          items.push(<td key={cells[i].id} 
+              style={{backgroundColor: bgcol, color: "#fff"}}>
+              {cells[i].val.text}</td>);
+        } else if (headers[i].type == "bar") {
+          const levels = ["success","warning","danger"];
+          for (var ci = 0; ci < headers[i].levels.length; ci++) {
+            if (cells[i].val >= headers[i].levels[ci]) {
+              var col = ci
+              break;
+            }
+          }
+          var pval = cells[i].val*100;
+          items.push(<td key={cells[i].id}><ProgressBar striped bsStyle={levels[col]}
+              now={pval}/></td>);
+        } else {
+          items.push(<td key={cells[i].id}>{cells[i].val.text}</td>);
+        }
+      }
+        
+    } else {
+      var items = this.props.data.rows.map((d) => {
+          return <td key={d.id}>{d.val}</td>;
+      });
+    }
     if (!this.props.drill_down) {
       return (<tr>{items}</tr>);
     }
@@ -178,6 +213,7 @@ var NavOptions = React.createClass({
           dirs[allItems[key].query.path].push(
             <MenuItem onSelect={this.handleSelect(key)} key={key}>
               {allItems[key].query.filter_revision && "R* "}
+              {allItems[key].query.drills_down && "D* "}
               {allItems[key].title}
             </MenuItem>
           );
@@ -189,6 +225,7 @@ var NavOptions = React.createClass({
             onSelect={this.handleSelect(key)} 
             key={key}>
               {allItems[key].query.filter_revision && "R* "}
+              {allItems[key].query.drills_down && "D* "}
               {allItems[key].title}
             </NavItem>
           );
@@ -351,7 +388,7 @@ var CocoTable = React.createClass({
         prom = this.state.query.override(
             ddresults.remote_request, ddresults.context);
       } else {
-        prom = this.state.query.override({}, "");
+        prom = this.state.query.override(this.state.query.remote_request, "");
       }
       prom.then((val) => {
         if (this.state.query.processPre) {
@@ -379,6 +416,13 @@ var CocoTable = React.createClass({
           </div>
       );
     }
+    // Any head processing
+    var headers = this.state.data.headers;
+
+    // Variable usage of processHeaders
+    if (this.state.query.processHeaders && !this.state.query.format_headers) {
+      headers = this.state.query.processHeaders(headers);
+    }
 
     // Any row processing
     var rows = this.state.data.rows;
@@ -389,19 +433,17 @@ var CocoTable = React.createClass({
 
     var drill_down = this.state.query.hasOwnProperty("drills_down");
     rows = rows.map((row) => {
-      return <TableRowData drill_down={drill_down} key={row.id} data={{
-        rows: addIndexArray(row.val),
-      }}
-      />
+      if (this.state.query.format_headers) {
+        return <TableRowData drill_down={drill_down} key={row.id} data={{headers: headers,
+          rows: addIndexArray(row.val),
+        }} />
+      } else { 
+        return <TableRowData drill_down={drill_down} key={row.id} data={{
+          rows: addIndexArray(row.val),
+        }} />
+      }
     });
 
-    // Any head processing
-    var headers = this.state.data.headers;
-
-    // Variable usage of processHeaders
-    if (this.state.query.processHeaders) {
-      headers = this.state.query.processHeaders(headers);
-    }
 
     return (
       <Table striped condensed hover>
