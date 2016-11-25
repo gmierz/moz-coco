@@ -37,9 +37,8 @@ var deepcopy = require("lodash.clonedeep");
  * processBody(data) takes in a array of arrays and returns an array of arrays,
  *   may be null.
  */
+
 var allQueries = [
-
-
   {
     name: "Recent Builds by Date",
     obj: {
@@ -115,7 +114,6 @@ var queriescc_presenter = [{
         "from":"coverage-summary",
         "where":{"and":[
           {"eq":{"build.revision12":"18a8dc43d170"}},
-          {"missing":"source.method.name"}
         ]},
         "limit":10000,
         "select":{
@@ -145,83 +143,6 @@ var queriescc_presenter = [{
     }
   },
 ];
-
-/* 
- * Single example of drilldowns
- */
-
-var drill = { 
-  name: 'JS Coverage by Directory placeholder',
-  obj:  {
-    filter_revision: true,
-    path: 'JS Coverage by Directory',
-    drills_down: true,
-    drilldown_context: 'chrome://',
-    remote_request: {
-      "limit":100,
-      "from":"coverage-summary",
-      "where":{"and":[
-        {"eq":{"build.revision12":"18a8dc43d170"}},
-        {"missing":"test.url"},
-        {"regexp":{"source.file.name":"chrome://.*"}},
-        {"not":{"regexp":{"source.file.name":".*/test/.*"}}},
-        {"not":{"regexp":{"source.file.name":".*/tests/.*"}}}
-      ]},
-      "select":[
-        {
-          "aggregate":"sum",
-          "name":"covered",
-          "value":"source.file.total_covered"
-        },
-        {
-          "aggregate":"sum",
-          "name":"uncovered",
-          "value":"source.file.total_uncovered"
-        }
-      ],
-      "groupby":[{"name":"filename","value":"source.file.name"}]
-    },
-    drillDown: function(selectedRow, drillDownContext) {
-      if (!drillDownContext) {
-        drillDownContext = this.drilldown_context;
-      }
-      var dotstarindex = drillDownContext.indexOf(".*");
-      if (dotstarindex != -1) {
-        drillDownContext = drillDownContext.substring(0, dotstarindex);
-      }
-      // selectedRow
-      // "chrome://blah/foo/bar/"
-      // drillDownContext
-      // "chrome://"
-
-      // blah/foo/bar/
-      var remainder = selectedRow[0].val.substring(drillDownContext.length);
-      
-      // blah 
-      var next_path = remainder.split('/')[0];
-      drillDownContext = drillDownContext + next_path + '/.*';
-
-      var remote_request_copy = JSON.parse(JSON.stringify(this.remote_request));
-      
-      ClientFilter.setProp(remote_request_copy, 'source.file.name', 
-          drillDownContext);
-      return {context: drillDownContext, remote_request: remote_request_copy};
-    },
-    processPre: function(comp, d) {
-      comp.setState({
-        data: {
-          headers: d.header,
-          rows: d.data
-         }
-      });
-    },
-    processHeaders: function(d) {
-      return d.map(StringManipulation.header)
-    },
-    processBody: null
-  }
-};
-
 
 var directoryDrillDown = { 
   name: 'Directory Drilldown Folders',
@@ -355,19 +276,7 @@ var directoryDrillDown = {
   }
 };
 
-var mdrilldowns = [];
 
-var variants = ["browser", "extensions", "global", "marionette", "mochikit",
-    "pocket", "satchel", "specialpowers"];
-variants.forEach((v) => {
-  var copy = deepcopy(drill);
-  copy.name = "Folder chrome://" + v;
-  copy.obj.drilldown_context = 'chrome://'+v+'/.*';
-  ClientFilter.setProp(copy, 'source.file.name', 'chrome://'+v+'/.*');
-  
-  mdrilldowns.push(copy);
-});
 allQueries.push(directoryDrillDown);
 Array.prototype.push.apply(allQueries, queriescc_presenter);
-Array.prototype.push.apply(allQueries, mdrilldowns);
 module.exports = {allQueries};
