@@ -34,30 +34,7 @@ var ClientConstants = require('../client/ClientConstants');
 
 var DEVON = true;
 
-var Errors = {
-  fatal: "fatal",
-  error: "error",
-  warn: "warn",
-  info: "info",
-  callback: function(level, message) {
-    console.log(`${level}: ${message}`); 
-  },
-  handleError: function(level, message) {
-    var perr = "During a previous error a programmer error"
-        + " occurred while processing the previous error";
-    if (!this.callback) {
-      console.log(`${level}: ${message}`); 
-      console.log(perr);
-      return;
-    }
-    if (!this.hasOwnProperty(level) || !(typeof this[level] === 'string')) {
-      this.callback(this.warn, message);
-      this.callback(this.warn, perr);
-      return;
-    }
-    this.callback(level, message);
-  }
-}
+var Errors = require('../Errors.js');
 
 var RevisionSetter = React.createClass({
   getInitialState: function() {
