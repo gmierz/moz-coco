@@ -458,14 +458,15 @@ var TopLevel = React.createClass({
     } 
     return ( 
       <div id="page-wrapper" className={classnametxt}>
-      <Sidebar><NavOptions/></Sidebar>
-      <Grid fluid>
-      <Row>
-      <Col sm={12}>
-      <CocoTable />
-      </Col>
-      </Row>
-      </Grid>
+        <Errors.ErrorOverlay />
+        <Sidebar><NavOptions/></Sidebar>
+        <Grid fluid>
+        <Row>
+        <Col sm={12}>
+        <CocoTable />
+        </Col>
+        </Row>
+        </Grid>
       </div>
     );
   }

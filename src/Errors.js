@@ -7,6 +7,10 @@
 * Author: Bradley Kennedy (bk@co60.ca)
 */
 
+var React = require('react');
+var Overlay = require('react-bootstrap/lib/Overlay');
+var Tooltip = require('react-bootstrap/lib/Tooltip');
+
 var Errors = {
   fatal: "fatal",
   error: "error",
@@ -29,7 +33,29 @@ var Errors = {
       return;
     }
     this.callback(level, message);
-  }
+  },
+  ErrorOverlay: React.createClass({
+    getInitialState() {
+      return { show: true, text: "<test message>", level: this.warn};
+    },
+
+    show() {
+      setTimeout(() => {
+        this.setState({ show: false });
+      }, 5000);
+      this.setState({ show: true });
+    },
+
+    render() {
+      return (
+        <div style={{ height: 0, paddingLeft: 150, position: 'absolute' }}>
+        <Overlay show={this.state.show} container={this} target={() => this} placement="bottom">
+          <Tooltip id="overload-bottom">{this.state.text}</Tooltip>
+        </Overlay>
+        </div>
+      );
+    }
+  })
 }
 
 module.exports = Errors;
