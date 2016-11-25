@@ -283,7 +283,7 @@ var Sidebar = React.createClass({
     PageStore.addChangeListener(this._onChange, 'query');
     // Seed the Sidebar with queries
     // TODO(brad) put this somewhere else
-    ClientConstants.allQueries.forEach((q) => {
+    ClientConstants.forEach((q) => {
       PageActions.create(q.name, q.obj);
     });
   },

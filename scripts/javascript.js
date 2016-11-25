@@ -5,6 +5,7 @@ var less = require('less');
 
 var b = browserify('src/components/index.js');
 
+
 function directoryExists(s) {
   try {
     fs.statSync(s);
@@ -13,6 +14,10 @@ function directoryExists(s) {
     return false;
   }
 }
+
+console.log("Creating query file");
+require('./concatqueries');
+
 
 /*
 b.transform({
