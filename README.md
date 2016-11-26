@@ -7,7 +7,7 @@ Part of the 2016 UCOSP Code Coverage Team working with Mozilla to bring code cov
 
 ##Overview
 
-A zero knowledge interface for ActiveData queries. Primarily directed toward decimating code coverage data. Built for stakeholders to access pertinent data housed in ActiveData without struggling with query language or schemas. 
+A zero knowledge interface for ActiveData queries. Primarily directed toward distributing code coverage data. Built for stakeholders to access pertinent data housed in ActiveData without struggling with query language or schemas. 
 
 ##Skip the details
 *Okay,* just head over to https://co60ca.github.io/coco

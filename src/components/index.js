@@ -35,6 +35,7 @@ var ClientConstants = require('../client/ClientConstants');
 var DEVON = true;
 
 var Errors = require('../Errors.js');
+var ErrorReporter = <Errors.ErrorOverlay entry={{error: Errors}} />
 
 var RevisionSetter = React.createClass({
   getInitialState: function() {
@@ -458,8 +459,8 @@ var TopLevel = React.createClass({
     } 
     return ( 
       <div id="page-wrapper" className={classnametxt}>
-        <Errors.ErrorOverlay />
         <Sidebar><NavOptions/></Sidebar>
+        {ErrorReporter}
         <Grid fluid>
         <Row>
         <Col sm={12}>

@@ -36,13 +36,18 @@ var Errors = {
   },
   ErrorOverlay: React.createClass({
     getInitialState() {
-      return { show: true, text: "<test message>", level: this.warn};
+      return { show: false, text: "<test message>", level: this.warn};
     },
-
+    componentDidMount() {
+      this.props.entry.error.callback = this.setAndShow;
+    },
+    setAndShow(level, message) {
+      this.setState({text: message, level: level}, this.show);
+    },
     show() {
       setTimeout(() => {
         this.setState({ show: false });
-      }, 5000);
+      }, 8000);
       this.setState({ show: true });
     },
 
