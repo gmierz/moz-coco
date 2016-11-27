@@ -37,7 +37,9 @@ var allQueries = [
       processBody: (d) => {
         return d.map(r => {
           if (r[0]) {
-            r[0] = new Date(r[0]*1000).toISOString();
+            var tdate = r[0]*1000;
+            tdate -= tdate % 1;
+            r[0] = new Date(tdate).toISOString().replace(/T/, " ");
           }
           return r;
         });
