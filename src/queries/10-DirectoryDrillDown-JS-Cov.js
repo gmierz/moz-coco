@@ -101,8 +101,8 @@ var directoryDrillDown = {
       
       return new Promise((res, rej) => {
         Promise.all(tasks).then((val) => {
-          var colours = ["#0f0", "#f0c04e", "#f00"];
-          var levels = [0.9, 0.85, 0.0]; 
+          var colours = ["#74c274", "#f0c04e", "#f2b968"];
+          var levels = [0.9, 0.70, 0.0]; 
           var headers = ["Directory", 
                          {title: "Bar", type:"bar", colours: colours, levels: levels},
                          {title: "Covered %", type:"bg", colours: colours, levels: levels}, 
