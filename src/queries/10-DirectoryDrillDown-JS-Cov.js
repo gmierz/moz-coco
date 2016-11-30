@@ -15,6 +15,7 @@ var StringManipulation = require('../StringManipulation');
 var Client = require('../client/Client');
 var ClientFilter = require('./ClientFilter');
 var deepcopy = require("lodash.clonedeep");
+var Errors = require("../Errors");
 
 /* Queries have the following objects:
  * name, which is the display string,
@@ -53,6 +54,11 @@ var directoryDrillDown = {
         {"value":"source.file.total_uncovered","aggregate":"sum"},
         {"value":"source.file.total_covered","aggregate":"sum"}
       ],
+      "where":{"and": [
+        {"prefix":{"source.file.name":"chrome://mochikit/content/tests/SimpleTest/"}},
+        {"eq":{"build.revision12":"d19d1d2136bb"}},
+        {"missing":"test.url"}
+      ]},
       "groupby":[{
       "name":"file",
       "value":{
@@ -69,18 +75,16 @@ var directoryDrillDown = {
         ]
         }
       }],
-      "where":{"and": [
-        {"prefix":{"source.file.name":"chrome://mochikit/content/tests/SimpleTest/"}},
-        {"eq":{"build.revision12":"d19d1d2136bb"}},
-        {"missing":"test.url"}
-      ]},
       "limit":1000
     },
     drillDown: function(selectedRow, drillDownContext) {
       if (!drillDownContext) {
         drillDownContext = this.drilldown_context;
       }
-      drillDownContext = drillDownContext + selectedRow[0].val;
+
+      // This one is used if we want to remove the path
+      //drillDownContext = drillDownContext + selectedRow[0].val;
+      drillDownContext = selectedRow[0].val; 
 
       var remote_request_copy = JSON.parse(JSON.stringify(this.remote_request));
       // TODO(brad) this does NOT set the revision? DOES IT?
@@ -95,9 +99,11 @@ var directoryDrillDown = {
       context = context || "chrome://";
       
       ClientFilter.setProp(query, "start", context.length);
-
+      ClientFilter.setProp(query, "source.file.name", context);
       return new Promise((res, rej) => {
-        console.log(query);
+        Errors.handleError(Errors.info, "Query sent: " + 
+            JSON.stringify(query));
+
         Client.makeRequest('activedata.allizom.org', query, (data) => {
           var colours = ["#74c274", "#f2b968", "#de6c69"];
           var levels = [0.9, 0.70, 0.0]; 

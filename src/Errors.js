@@ -16,23 +16,29 @@ var Errors = {
   error: "error",
   warn: "warn",
   info: "info",
+  console_level: "info",
+  modal_level: "warn",
   callback: function(level, message) {
     console.log(`${level}: ${message}`); 
   },
   handleError: function(level, message) {
-    var perr = "During a previous error a programmer error"
+    const perr = "During a previous error a programmer error"
         + " occurred while processing the previous error";
     if (!this.callback) {
       console.log(`${level}: ${message}`); 
       console.log(perr);
       return;
     }
-    if (!this.hasOwnProperty(level) || !(typeof this[level] === 'string')) {
+    if (this.logLevelCheck(level, this.modal_level)) {
       this.callback(this.warn, message);
-      this.callback(this.warn, perr);
-      return;
     }
-    this.callback(level, message);
+    if (this.logLevelCheck(level, this.console_level)) {
+      console.log(`${level}: ${message}`); 
+    }
+  },
+  logLevelCheck: function(level, set_level) {
+    var levels = [this.fatal, this.error, this.warn, this.info];
+    return levels.indexOf(level) <= levels.indexOf(set_level);
   },
   ErrorOverlay: React.createClass({
     getInitialState() {
