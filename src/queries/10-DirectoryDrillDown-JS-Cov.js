@@ -46,40 +46,44 @@ var directoryDrillDown = {
     drilldown_context: 'chrome://',
     format_headers: true,
     query_override: true,
-    remote_request: {
-      "limit":100,
+    remote_request:{
       "from":"coverage-summary",
-      "where":{"and":[
-        {"eq":{"build.revision12":"18a8dc43d170"}},
-        {"missing":"test.url"},
-        {"regexp":{"source.file.name":"chrome://.*"}},
-        {"not":{"regexp":{"source.file.name":".*/test/.*"}}},
-        {"not":{"regexp":{"source.file.name":".*/tests/.*"}}}
-      ]},
       "select":[
-        {
-          "aggregate":"sum",
-          "name":"covered",
-          "value":"source.file.total_covered"
-        },
-        {
-          "aggregate":"sum",
-          "name":"uncovered",
-          "value":"source.file.total_uncovered"
+        {"aggregate":"count"},
+        {"value":"source.file.total_uncovered","aggregate":"sum"},
+        {"value":"source.file.total_covered","aggregate":"sum"}
+      ],
+      "groupby":[{
+      "name":"file",
+      "value":{
+        "left":[
+          "source.file.name",
+          {"add":[
+            1,
+            {
+              "find":{"source.file.name":"/"},
+              "start":43,
+              "default":{"length":"source.file.name"}
+            }
+          ]}
+        ]
         }
-      ]
+      }],
+      "where":{"and": [
+        {"prefix":{"source.file.name":"chrome://mochikit/content/tests/SimpleTest/"}},
+        {"eq":{"build.revision12":"d19d1d2136bb"}},
+        {"missing":"test.url"}
+      ]},
+      "limit":1000
     },
     drillDown: function(selectedRow, drillDownContext) {
       if (!drillDownContext) {
         drillDownContext = this.drilldown_context;
       }
-      var dotstarindex = drillDownContext.indexOf(".*");
-      if (dotstarindex != -1) {
-        drillDownContext = drillDownContext.substring(0, dotstarindex);
-      }
-      drillDownContext = drillDownContext + selectedRow[0].val + '/.*';
+      drillDownContext = drillDownContext + selectedRow[0].val;
 
       var remote_request_copy = JSON.parse(JSON.stringify(this.remote_request));
+      // TODO(brad) this does NOT set the revision? DOES IT?
       
       ClientFilter.setProp(remote_request_copy, 'source.file.name', 
           drillDownContext);
@@ -88,46 +92,36 @@ var directoryDrillDown = {
       };
     },
     override: function(query, context) {
-      var dirs = [];
-      var dirobj = this.getFolderWithContext(context);
-      context = context || "chrome://.*";
-
-      var tasks = [];
-      for (var prop in dirobj) {
-        var job = this.aggregateDir(query, prop,
-            context.substring(0, context.lastIndexOf("/.*") + 1) + prop + "/.*");
-        tasks.push(job);
-      }
+      context = context || "chrome://";
       
+      ClientFilter.setProp(query, "start", context.length);
+
       return new Promise((res, rej) => {
-        Promise.all(tasks).then((val) => {
+        console.log(query);
+        Client.makeRequest('activedata.allizom.org', query, (data) => {
           var colours = ["#74c274", "#f2b968", "#de6c69"];
           var levels = [0.9, 0.70, 0.0]; 
-          var headers = ["Directory", 
-                         {title: "Bar", type:"bar", colours: colours, levels: levels},
-                         {title: "Covered %", type:"bg", colours: colours, levels: levels}, 
-                         {title: "Covered Lines", type:"bg", colours: colours, levels: levels}];
-          res({
-            header: headers,
-            data: val
-          });
-        });
-      });
-    },
-    aggregateDir: function(query, prop, context) {
-      // TODO(brad) this should use query from override
-      var queryJSON = deepcopy(query);
-      ClientFilter.setProp(queryJSON, 'source.file.name', context);
+          var headers = [
+            "Directory", 
+            {title: "Bar", type:"bar", colours: colours, levels: levels},
+            {title: "Covered %", type:"bg", colours: colours, levels: levels}, 
+            {title: "Covered Lines", type:"bg", colours: colours, levels: levels}
+          ];
 
-      return new Promise((res, rej) => {
-        Client.makeRequest('activedata.allizom.org',
-            queryJSON, (data) => {
-          var cov = data.data.covered;
-          var ucov = data.data.uncovered;
-          var lines = cov + ucov;
-          res([prop, cov/lines, 
+          var rows = data.data.map((row) => {
+            var dir = row[0];
+            var cov = row[1];
+            var ucov = row[2];
+            var lines = cov + ucov;
+            return [
+              dir, 
+              cov/lines, 
               {text: `${((cov/lines)*100).toPrecision(3)} %`, val: cov/lines}, 
-              {text: `${cov}/${lines}`, val: cov/lines}]);
+              {text: `${cov}/${lines}`, val: cov/lines}
+            ];
+          });
+
+          res({header: headers, data: rows});
         });
       });
     },
@@ -143,30 +137,6 @@ var directoryDrillDown = {
       return d.map(StringManipulation.header)
     },
     processBody: null,
-    getFolderWithContext: function(c) {
-      var path = c.substring(c.indexOf("//")+1, c.lastIndexOf("/.*"));
-      var folders = this.getFolders();
-      var directorySplit = path.split("/");
-      var res = folders["chrome://"];
-      for (var i = 1; i < directorySplit.length; i++) {
-        res = res[directorySplit[i]];
-      }
-      return res; 
-    },
-    getFolders: function() { 
-      return {
-        "chrome://": {
-          "browser":{"content":{"downloads": null, "places": null}},
-          "extensions":{"content": null},
-          "global":{"content": {"bindings": null}},
-          "marionette":{"content": null},
-          "mochikit":{"content": null},
-          "pocket":null,
-          "satchel":null,
-          "specialpowers":null
-        }
-      };
-    }
   }
 };
 
