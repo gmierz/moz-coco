@@ -83,8 +83,8 @@ var directoryDrillDown = {
       }
 
       // This one is used if we want to remove the path
-      //drillDownContext = drillDownContext + selectedRow[0].val;
-      drillDownContext = selectedRow[0].val; 
+      drillDownContext += selectedRow[0].val;
+      //drillDownContext = selectedRow[0].val; 
 
       var remote_request_copy = JSON.parse(JSON.stringify(this.remote_request));
       // TODO(brad) this does NOT set the revision? DOES IT?
@@ -116,6 +116,7 @@ var directoryDrillDown = {
 
           var rows = data.data.map((row) => {
             var dir = row[0];
+            dir = dir.substr(dir.substr(0, dir.length-1).lastIndexOf("/")+1);
             var cov = row[1];
             var ucov = row[2];
             var lines = cov + ucov;
