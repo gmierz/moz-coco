@@ -120,8 +120,8 @@ var directoryDrillDown = {
           var rows = data.data.map((row) => {
             var dir = row[0];
             dir = dir.substr(dir.substr(0, dir.length-1).lastIndexOf("/")+1);
-            var cov = row[1];
-            var ucov = row[2];
+            var cov = row[2];
+            var ucov = row[3];
             var lines = cov + ucov;
             return [
               dir, 
