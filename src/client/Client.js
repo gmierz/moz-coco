@@ -8,16 +8,18 @@
 */
 
 var https = require('https');
-
+var Errors = require('../Errors');
 /* 
  * This client simplifies communication with ActiveData
  */
 
 var handleErrors = function(err) {
-  throw err;
+  Errors.handleError(Errors.error, "Exception in Client.js: " + err);
 }
 
 function makeRequest(host, body, callback) {
+  Errors.handleError(Errors.info, "Query sent: " + 
+      JSON.stringify(body));
   var jsonbody = JSON.stringify(body);
   options = {
     hostname: host,

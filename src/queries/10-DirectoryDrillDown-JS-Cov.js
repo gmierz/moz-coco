@@ -15,7 +15,6 @@ var StringManipulation = require('../StringManipulation');
 var Client = require('../client/Client');
 var ClientFilter = require('./ClientFilter');
 var deepcopy = require("lodash.clonedeep");
-var Errors = require("../Errors");
 
 /* Queries have the following objects:
  * name, which is the display string,
@@ -108,9 +107,6 @@ var directoryDrillDown = {
       ClientFilter.setProp(query, "start", context.length);
       ClientFilter.setProp(query, "source.file.name", context);
       return new Promise((res, rej) => {
-        Errors.handleError(Errors.info, "Query sent: " + 
-            JSON.stringify(query));
-
         Client.makeRequest('activedata.allizom.org', query, (data) => {
           var colours = ["#74c274", "#f2b968", "#de6c69"];
           var levels = [0.9, 0.70, 0.0]; 
