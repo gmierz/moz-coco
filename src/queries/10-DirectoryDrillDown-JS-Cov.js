@@ -77,6 +77,13 @@ var directoryDrillDown = {
       }],
       "limit":1000
     },
+    drillUp: function(drillDownContext) {
+      if (!drillDownContext) {
+        return this.drilldown_context;
+      }
+      return drillDownContext.substr(0, drillDownContext.substr(0, 
+            drillDownContext.length-1).lastIndexOf("/")+1);
+    },
     drillDown: function(selectedRow, drillDownContext) {
       if (!drillDownContext) {
         drillDownContext = this.drilldown_context;

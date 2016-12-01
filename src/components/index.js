@@ -118,7 +118,7 @@ var TableRowData = React.createClass({
           const levels = ["success","warning","danger"];
           for (var ci = 0; ci < headers[i].levels.length; ci++) {
             if (cells[i].val >= headers[i].levels[ci]) {
-              var col = ci
+              var col = ci;
               break;
             }
           }
@@ -240,14 +240,24 @@ var PropertyViewer = React.createClass({
       this.setState({hidden: true});
     }
   },
+  upLevel: function() {
+    PageActions.setSelected("");
+    PageActions.setContext(PageStore.getQuery().drillUp(PageStore.getContext()));
+    PageStore.emitChange('query');
+  },
   render: function() {
     if (this.state.hidden) return (<div></div>);
     return (
-      <form>
+      <FormGroup>
       <ControlLabel>{this.props.header}</ControlLabel>
-      <FormControl type="text" value={this.state.value}
-      placeholder="Context" disabled />
-      </form>
+      <InputGroup>
+        <FormControl type="text" value={this.state.value}
+        placeholder="Context" disabled />
+        <InputGroup.Button>
+          <Button onClick={this.upLevel}>Drill Up</Button>
+        </InputGroup.Button>
+      </InputGroup>
+      </FormGroup>
     );
   }
 });
