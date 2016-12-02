@@ -32,6 +32,8 @@ var Client = require('../client/Client');
 var ClientFilter = require("../client/ClientFilter");
 var ClientConstants = require('../client/ClientConstants');
 
+const InfoModal = require('./InfoModal');
+
 var DEVON = true;
 
 var Errors = require('../Errors.js');
@@ -322,6 +324,7 @@ var Sidebar = React.createClass({
         {displayChildren && this.props.children}
         {contextview}
         {displayChildren && PageStore.getQuery().filter_revision && <RevisionSetter />}
+        <InfoModal/>
         {banner}
       </div>
     );
