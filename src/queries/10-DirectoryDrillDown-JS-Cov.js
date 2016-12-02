@@ -39,7 +39,7 @@ var deepcopy = require("lodash.clonedeep");
  */
 
 var directoryDrillDown = { 
-  name: 'Directory Drilldown Folders',
+  name: 'JavaScript Coverage by Folder',
   obj:  {
     filter_revision: true,
     drills_down: true,
