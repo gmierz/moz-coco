@@ -52,9 +52,7 @@ var directoryDrillDown = {
       "where":{"and":[
         {"eq":{"build.revision12":"18a8dc43d170"}},
         {"missing":"test.url"},
-        {"regexp":{"source.file.name":"chrome://.*"}},
-        {"not":{"regexp":{"source.file.name":".*/test/.*"}}},
-        {"not":{"regexp":{"source.file.name":".*/tests/.*"}}}
+        {"regexp":{"source.file.name":"chrome://.*"}}
       ]},
       "select":[
         {
