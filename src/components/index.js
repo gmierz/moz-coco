@@ -25,9 +25,9 @@ import InfoModal from './InfoModal';
 
 import Errors from '../Errors.js';
 
-var ErrorReporter = <Errors.ErrorOverlay entry={{error: Errors}} />
+const DEVON = true;
 
-var DEVON = true;
+var ErrorReporter = <Errors.ErrorOverlay entry={{error: Errors}} />
 
 var RevisionSetter = React.createClass({
   getInitialState: function() {
@@ -67,7 +67,7 @@ var RevisionSetter = React.createClass({
 var TableHeadData = React.createClass({
   render: function() {
     var items = this.props.data.map((d) => {
-      if (typeof(d.val) == "string") {
+      if (typeof(d.val) === "string") {
         return <th key={d.id}>{d.val}</th>;
       } else {
         return <th key={d.id}>{d.val.title}</th>;
@@ -262,7 +262,7 @@ var Sidebar = React.createClass({
     PageStore.addChangeListener(this._onChange);
     PageStore.addChangeListener(this._onChange, 'query');
     // Seed the Sidebar with queries
-    // TODO(brad) put this somewhere else
+
     ClientConstants.forEach((q) => {
       PageActions.create(q.name, q.obj);
     });
@@ -362,8 +362,6 @@ var CocoTable = React.createClass({
     if (this.state.query.drills_down && PageStore.getSelected()) {
       var ddresults = this.state.query.drillDown(PageStore.getSelected(), 
           PageStore.getContext());
-      // ddresults.context remote_request
-      // TODO(brad) This seems bad
       PageActions.setContext(ddresults.context);
       queryJSON = ddresults.remote_request;
     }
@@ -383,11 +381,8 @@ var CocoTable = React.createClass({
     } else {
       Client.makeRequest('activedata.allizom.org',
           queryJSON, (data) => {
-        // If null do not pre process
-        // TODO(brad) Unsure if this is legal
-        this.state.data = data;
         if (this.state.query.processPre) {
-          this.state.query.processPre(this, this.state.data);
+          this.state.query.processPre(this, data);
         }
       });
     }
@@ -419,13 +414,11 @@ var CocoTable = React.createClass({
     var drill_down = this.state.query.hasOwnProperty("drills_down");
     rows = rows.map((row) => {
       if (this.state.query.format_headers) {
-        return <TableRowData drill_down={drill_down} key={row.id} data={{headers: headers,
-          rows: addIndexArray(row.val),
-        }} />
+        return <TableRowData drill_down={drill_down} key={row.id} 
+          data={{headers: headers, rows: addIndexArray(row.val), }} />
       } else { 
-        return <TableRowData drill_down={drill_down} key={row.id} data={{
-          rows: addIndexArray(row.val),
-        }} />
+        return <TableRowData drill_down={drill_down} key={row.id} 
+          data={{ rows: addIndexArray(row.val), }} />
       }
     });
 
@@ -442,6 +435,11 @@ var CocoTable = React.createClass({
 });
 
 var addIndexArray = function(li) {
+  if (!Array.isArray(li)) {
+    var error = `Programmers error, ${li} is not array`
+    Errors.handlerError(Errors.fatal, error);
+    throw error;
+  }
   var i = 0;
   return li.map(function(l) {
     i++;
