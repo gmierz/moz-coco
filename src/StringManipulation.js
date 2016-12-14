@@ -8,7 +8,7 @@
 */
 
 function headlineCase(str) {
-  words = str.split(' ')
+  var words = str.split(' ')
   words = words.map(word => {
     return word.substring(0, 1).toUpperCase() + word.substring(1);
   });

@@ -7,37 +7,27 @@
 * Author: Bradley Kennedy (bk@co60.ca)
 */
 
-var React = require('react');
-var ReactDOM = require('react-dom');
-var Table = require('react-bootstrap/lib/Table');
-var Grid = require('react-bootstrap/lib/Grid');
-var Row = require('react-bootstrap/lib/Row');
-var Col = require('react-bootstrap/lib/Col');
-var Button = require('react-bootstrap/lib/Button');
-var Nav = require('react-bootstrap/lib/Nav');
-var NavItem = require('react-bootstrap/lib/NavItem');
-var MenuItem = require('react-bootstrap/lib/MenuItem');
-var ProgressBar = require('react-bootstrap/lib/ProgressBar');
-var NavDropdown = require('react-bootstrap/lib/NavDropdown');
-var ControlLabel = require('react-bootstrap/lib/ControlLabel');
-var FormControl = require('react-bootstrap/lib/FormControl');
-var InputGroup = require('react-bootstrap/lib/InputGroup');
-var FormGroup = require('react-bootstrap/lib/FormGroup');
-var ControlLabel = require('react-bootstrap/lib/ControlLabel');
+import React, {Component} from 'react';
+import ReactDOM from 'react-dom';
 
-var PageStore = require('../stores/PageStore');
-var PageActions = require('../actions/PageActions');
+import {Table, Grid, Row, Col, Button, Nav, NavItem, MenuItem, ProgressBar,
+NavDropdown, ControlLabel, FormControl, InputGroup, FormGroup
+} from 'react-bootstrap';
 
-var Client = require('../client/Client');
-var ClientFilter = require("../client/ClientFilter");
-var ClientConstants = require('../client/ClientConstants');
+import PageStore from '../stores/PageStore';
+import PageActions from '../actions/PageActions';
 
-const InfoModal = require('./InfoModal');
+import Client from '../client/Client';
+import ClientFilter from '../client/ClientFilter';
+import ClientConstants from '../client/ClientConstants';
+
+import InfoModal from './InfoModal';
+
+import Errors from '../Errors.js';
+
+var ErrorReporter = <Errors.ErrorOverlay entry={{error: Errors}} />
 
 var DEVON = true;
-
-var Errors = require('../Errors.js');
-var ErrorReporter = <Errors.ErrorOverlay entry={{error: Errors}} />
 
 var RevisionSetter = React.createClass({
   getInitialState: function() {

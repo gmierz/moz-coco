@@ -15,13 +15,14 @@ var Errors = require('../Errors');
 
 var handleErrors = function(err) {
   Errors.handleError(Errors.error, "Exception in Client.js: " + err);
+  throw err;
 }
 
 function makeRequest(host, body, callback) {
   Errors.handleError(Errors.info, "Query sent: " + 
       JSON.stringify(body));
   var jsonbody = JSON.stringify(body);
-  options = {
+  var options = {
     hostname: host,
     port: 443,
     path: '/query',
