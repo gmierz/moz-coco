@@ -310,7 +310,6 @@ var Sidebar = React.createClass({
     }
     var displayChildren = true;
     if (this.state.collapsed || this.state.opening) {
-      imgico = banner = contextview = [];
       displayChildren = false;
     }
     return (
@@ -319,13 +318,18 @@ var Sidebar = React.createClass({
           <NavButton callback={function() {
             PageActions.toggleSidebar();
           }}/>
-          {imgico}
+          {displayChildren && imgico}
         </div>
-        {displayChildren && this.props.children}
-        {contextview}
-        {displayChildren && PageStore.getQuery().filter_revision && <RevisionSetter />}
-        <InfoModal/>
-        {banner}
+        {displayChildren && 
+        <div>
+          {this.props.children}
+          {contextview}
+          {PageStore.getQuery().filter_revision}
+          <RevisionSetter />
+          <InfoModal/>
+        </div>
+        }
+        {displayChildren && banner}
       </div>
     );
   }

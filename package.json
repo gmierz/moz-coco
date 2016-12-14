@@ -34,11 +34,10 @@
     "uglifyify": "^3.0.3"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "node scripts/javascript.js && node scripts/less.js && node scripts/rebuild-bootstrap.js",
+    "test": "echo \"Error: no tests \" && exit 1",
+    "install": "node scripts/javascript.js && node scripts/less.js && node scripts/rebuild-bootstrap.js",
     "bootstrap-build": "node scripts/rebuild-bootstrap.js",
-    "fast": "node scripts/javascript.js",
-    "make": "echo \"Should run all tests //TODO\" && exit 1"
+    "fast": "node scripts/javascript.js"
   },
   "author": "brad",
   "license": "MPL-2.0"
