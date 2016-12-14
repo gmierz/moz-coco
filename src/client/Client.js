@@ -15,7 +15,6 @@ var Errors = require('../Errors');
 
 var handleErrors = function(err) {
   Errors.handleError(Errors.error, "Exception in Client.js: " + err);
-  throw err;
 }
 
 function makeRequest(host, body, callback) {

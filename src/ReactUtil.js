@@ -14,4 +14,4 @@ function addIndexArray(li) {
   });
 }
 
-export default addIndexArray;
+export {addIndexArray};

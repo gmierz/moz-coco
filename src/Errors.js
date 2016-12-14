@@ -18,21 +18,21 @@ var Errors = {
   console_level: "info",
   modal_level: "warn",
   callback: function(level, message) {
-    console.log(`${level}: ${message}`); 
+    console.error(`${level}: ${message}`); 
   },
   handleError: function(level, message) {
     const perr = "During a previous error a programmer error"
         + " occurred while processing the previous error";
     if (!this.callback) {
-      console.log(`${level}: ${message}`); 
-      console.log(perr);
+      console.error(`${level}: ${message}`); 
+      console.error(perr);
       return;
     }
     if (this.logLevelCheck(level, this.modal_level)) {
       this.callback(this.warn, message);
     }
     if (this.logLevelCheck(level, this.console_level)) {
-      console.log(`${level}: ${message}`); 
+      console.error(`${level}: ${message}`); 
     }
   },
   logLevelCheck: function(level, set_level) {
