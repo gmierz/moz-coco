@@ -7,9 +7,8 @@
 * Author: Bradley Kennedy (bk@co60.ca)
 */
 
-var React = require('react');
-var Overlay = require('react-bootstrap/lib/Overlay');
-var Tooltip = require('react-bootstrap/lib/Tooltip');
+import React from 'react';
+import {Overlay, Tooltip} from 'react-bootstrap';
 
 var Errors = {
   fatal: "fatal",

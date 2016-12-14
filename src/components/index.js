@@ -23,9 +23,8 @@ import ClientConstants from '../client/ClientConstants';
 
 import InfoModal from './InfoModal';
 
-import Errors from '../Errors.js';
-
-const DEVON = true;
+import Errors from '../Errors';
+import Config from '../Config';
 
 var ErrorReporter = <Errors.ErrorOverlay entry={{error: Errors}} />
 
@@ -483,7 +482,7 @@ ReactDOM.render(
   , document.getElementById('react-root')
 );
 
-if (DEVON) {
+if (Config.DEVON) {
   Errors.handleError(Errors.warn, "Coco Development mode is currently on,"
     + " this is not a final project and should be expected to have no"
     + " reliability");

@@ -1,6 +1,7 @@
 
-const fs = require("fs");
-const randomstring = require("randomstring");
+const fs = require('fs');
+const randomstring = require('randomstring');
+
 function getQueries() {
   const templatefile = "./src/client/ClientConstants.js.tmpl";
   var template = fs.readFileSync(templatefile, encoding="utf8"); 
@@ -33,5 +34,3 @@ function getQueries() {
 const outputfile = "./src/client/ClientConstants.js";
 fs.writeFileSync(outputfile, getQueries());
 console.log(`Writing to ${outputfile}`);
-
-module.exports = {};

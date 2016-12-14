@@ -1,7 +1,7 @@
-const React = require('react');
-const ReactDOM = require('react-dom');
-const Button = require('react-bootstrap/lib/Button');
-const Modal = require('react-bootstrap/lib/Modal');
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import {Button, Modal} from 'react-bootstrap';
 
 const Example = React.createClass({
   getInitialState() {

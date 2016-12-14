@@ -15,15 +15,37 @@ function directoryExists(s) {
   }
 }
 
+function editFile(file, findandreplace) {
+  var filecopy = fs.readFileSync(file, encoding="utf8");
+  for (var i in findandreplace) {
+    var k = findandreplace[i][0];
+    var v = findandreplace[i][1];
+    filecopy = filecopy.replace(k, v);
+  }
+  fs.writeFileSync(file, filecopy);
+}
+
+var production = false;
+if (process.argv[2] === 'production') {
+  console.log("Using production mode");
+  production = true;
+}
+
+console.log("Writing config file");
+editFile('src/Config.js', [
+  [/const DEVON = (true|false)/, 'const DEVON = ' + String(!production)]
+]);
+
 console.log("Creating query file");
 require('./concatqueries');
 
 
-/*
-b.transform({
-    global: true
-}, 'uglifyify');
-*/
+if (production) {
+  b.transform({
+      global: true
+  }, 'uglifyify');
+}
+
 console.log("Creating directories");
 // Make js first
 if (!directoryExists("js")) {

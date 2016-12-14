@@ -6,15 +6,15 @@
 * Author: Bradley Kennedy (bk@co60.ca)
 */
 
-var AppDispatcher = require('../dispatcher/AppDispatcher');
-var PageConstants = require('../constants/PageConstants');
-var EventEmitter = require('events').EventEmitter;
-var keyMirror = require('keymirror');
+import AppDispatcher from '../dispatcher/AppDispatcher';
+import PageConstants from '../constants/PageConstants';
+import {EventEmitter} from 'events';
+import keyMirror from 'keymirror';
 
 
-var CHANGE_EVENT = 'change';
-var QUERY_EVENT = 'query';
-var DRILL_EVENT = 'drill';
+const CHANGE_EVENT = 'change';
+const QUERY_EVENT = 'query';
+const DRILL_EVENT = 'drill';
 
 var _selected = null;
 var _context = null;

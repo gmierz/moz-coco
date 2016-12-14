@@ -34,8 +34,7 @@
     "uglifyify": "^3.0.3"
   },
   "scripts": {
-    "test": "echo \"Error: no tests \" && exit 1",
-    "install": "node scripts/javascript.js && node scripts/less.js && node scripts/rebuild-bootstrap.js",
+    "install": "NODE_ENV=production node scripts/javascript.js production && node scripts/less.js && node scripts/rebuild-bootstrap.js",
     "bootstrap-build": "node scripts/rebuild-bootstrap.js",
     "fast": "node scripts/javascript.js"
   },

@@ -6,10 +6,6 @@
 * Author: Bradley Kennedy (bk@co60.ca)
 */
 
-/* 
- * This is intended to be the location of the stored queries
- */
-
 var StringManipulation = require('../StringManipulation');
 var Client = require('../client/Client');
 var ClientFilter = require('./ClientFilter');

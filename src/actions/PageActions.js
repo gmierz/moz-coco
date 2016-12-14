@@ -5,8 +5,8 @@
 *
 * Author: Bradley Kennedy (bk@co60.ca)
 */
-var AppDispatcher = require('../dispatcher/AppDispatcher');
-var PageConstants = require('../constants/PageConstants');
+import AppDispatcher from '../dispatcher/AppDispatcher';
+import PageConstants from '../constants/PageConstants';
 
 
 /* PageActions provides actions that can opperate on the 
