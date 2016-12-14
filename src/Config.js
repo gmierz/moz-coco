@@ -6,7 +6,7 @@
 * Author: Bradley Kennedy (bk@co60.ca)
 */
 
-const DEVON = false;
+const DEVON = true;
 
 import Errors from './Errors';
 

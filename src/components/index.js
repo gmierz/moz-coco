@@ -23,6 +23,7 @@ import ClientConstants from '../client/ClientConstants';
 
 import InfoModal from './InfoModal';
 
+import addIndexArray from '../ReactUtil';
 import Errors from '../Errors';
 import Config from '../Config';
 
@@ -433,18 +434,6 @@ var CocoTable = React.createClass({
   }
 });
 
-var addIndexArray = function(li) {
-  if (!Array.isArray(li)) {
-    var error = `Programmers error, ${li} is not array`
-    Errors.handlerError(Errors.fatal, error);
-    throw error;
-  }
-  var i = 0;
-  return li.map(function(l) {
-    i++;
-    return {"id": i, "val": l};
-  });
-}
 
 var TopLevel = React.createClass({
   componentWillMount: function() {
