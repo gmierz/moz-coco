@@ -176,9 +176,7 @@ var TopLevel = React.createClass({
       classnametxt += " collapsed";
     }
     if (this.state.loading) {
-      return <Loading then={() => {
-        this.setState({loading: false});
-      }}/>;
+      return <Loading />;
     } else {
       return ( 
         <div id="page-wrapper" className={classnametxt}>

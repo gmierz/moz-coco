@@ -13,16 +13,25 @@ var Loading = React.createClass({
   getInitialState: function() {
     return {hidden: true};
   },
+  toggle: function(show) {
+    if (!this._reactInternalInstance) {
+      return
+    }
+    this.setState({hidden: show});
+    setTimeout(() => {
+      this.toggle(!show);
+    }, 1200);
+  },
   componentDidMount: function() {
     setTimeout(() => {
       this.setState({hidden: false});
+      this.toggle(true);
     }, 5);
-    setTimeout(() => {
-      this.setState({hidden: true});
-    }, 1200);
-    setTimeout(() => {
-      this.props.then();
-    }, 2400);
+    if(this.props.then) {
+      setTimeout(() => {
+        this.props.then();
+      }, 2400);
+    }
   },
   render: function() {
     var props = {}
