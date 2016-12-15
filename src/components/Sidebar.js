@@ -90,6 +90,14 @@ var NavOptions = React.createClass({
       var dirs = {};
       // Object works well with for each
       for (var key in allItems) {
+        var common = <div>
+              {allItems[key].query.filter_revision && 
+                <img height="16px" alt="Revision modifiable" src="icons/rev.png"/>}
+              {allItems[key].query.drills_down && 
+                <img height="16px" alt="Drilldown enabled" src="icons/drill.png"/>}
+              {" "}
+              {allItems[key].title}
+        </div>;
         if (allItems[key].query.hasOwnProperty('path')) {
           // Has path
           if (!dirs.hasOwnProperty(allItems[key].query.path)) {
@@ -97,9 +105,7 @@ var NavOptions = React.createClass({
           }
           dirs[allItems[key].query.path].push(
             <MenuItem onSelect={this.handleSelect(key)} key={key}>
-              {allItems[key].query.filter_revision && "R* "}
-              {allItems[key].query.drills_down && "D* "}
-              {allItems[key].title}
+              {common}
             </MenuItem>
           );
             
@@ -109,9 +115,7 @@ var NavOptions = React.createClass({
             <NavItem 
             onSelect={this.handleSelect(key)} 
             key={key}>
-              {allItems[key].query.filter_revision && "R* "}
-              {allItems[key].query.drills_down && "D* "}
-              {allItems[key].title}
+              {common}
             </NavItem>
           );
         }
