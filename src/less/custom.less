@@ -47,3 +47,17 @@ html, body, .page-wrapper, #react-root {
   text-align: center;
   margin-top: 15px;
 }
+
+.loading-screen {
+  background-color: @sidebarcolor;
+  text-align: center;
+  height: 100%;
+  h2 {
+    transition: opacity 1.0s;
+    position: absolute;
+    color: #fff;
+    left: 50%;
+    top: 33%;
+    transform: translate(-50%, -50%);
+  }
+}

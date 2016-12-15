@@ -89,8 +89,6 @@ var directoryDrillDown = {
       //drillDownContext = selectedRow[0].val; 
 
       var remote_request_copy = JSON.parse(JSON.stringify(this.remote_request));
-      // TODO(brad) this does NOT set the revision? DOES IT?
-      
       ClientFilter.setProp(remote_request_copy, 'source.file.name', 
           drillDownContext);
       return {

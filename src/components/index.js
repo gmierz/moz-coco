@@ -20,6 +20,7 @@ import ClientFilter from '../client/ClientFilter';
 import {addIndexArray} from '../ReactUtil';
 import {TableRowData, TableHeadData} from './Tables';
 import {Sidebar, NavOptions} from './Sidebar';
+import Loading from './Loading';
 import Errors from '../Errors';
 import Config from '../Config';
 
@@ -140,8 +141,28 @@ var CocoTable = React.createClass({
 
 
 var TopLevel = React.createClass({
+  getInitialState: function() {
+    return {loading: true};
+  },
   componentWillMount: function() {
     PageStore.addChangeListener(this._onChange);
+    // Get latest query
+    Client.makeRequest('activedata.allizom.org', {
+      "from":"coverage-summary",
+      "limit":10,
+      "groupby":["build.date","build.revision12"]
+    },
+    (data) => {
+      //TODO(brad) this needs to be sorted by build.date not count
+      PageActions.setRevision(data.data[0][1]);
+      this.setState({loading: false});
+
+      if (Config.DEVON) {
+        Errors.handleError(Errors.warn, "Coco Development mode is currently on,"
+          + " this is not a final project and should be expected to have no"
+          + " reliability");
+      }
+    });
   },
   componentWillUnmount: function() {
     PageStore.removeChangeListener(this._onChange);
@@ -153,30 +174,30 @@ var TopLevel = React.createClass({
     var classnametxt = "page-wrapper";
     if (PageStore.getCollapsed()) {
       classnametxt += " collapsed";
-    } 
-    return ( 
-      <div id="page-wrapper" className={classnametxt}>
-        <Sidebar><NavOptions/></Sidebar>
-        {ErrorReporter}
-        <Grid fluid>
-        <Row>
-        <Col sm={12}>
-        <CocoTable />
-        </Col>
-        </Row>
-        </Grid>
-      </div>
-    );
+    }
+    if (this.state.loading) {
+      return <Loading then={() => {
+        this.setState({loading: false});
+      }}/>;
+    } else {
+      return ( 
+        <div id="page-wrapper" className={classnametxt}>
+          <Sidebar><NavOptions/></Sidebar>
+          {ErrorReporter}
+          <Grid fluid>
+          <Row>
+          <Col sm={12}>
+          <CocoTable />
+          </Col>
+          </Row>
+          </Grid>
+        </div>
+      );
+    }
   }
 });      
-
 ReactDOM.render(
   <TopLevel />
   , document.getElementById('react-root')
 );
 
-if (Config.DEVON) {
-  Errors.handleError(Errors.warn, "Coco Development mode is currently on,"
-    + " this is not a final project and should be expected to have no"
-    + " reliability");
-}

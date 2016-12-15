@@ -116,7 +116,6 @@ var directoryDrillDown = {
       });
     },
     aggregateDir: function(query, prop, context) {
-      // TODO(brad) this should use query from override
       var queryJSON = deepcopy(query);
       ClientFilter.setProp(queryJSON, 'source.file.name', context);
 
