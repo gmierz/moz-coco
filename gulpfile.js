@@ -3,7 +3,8 @@ var gutil = require('gulp-util');
 var notify = require('gulp-notify');
 var less = require('gulp-less');
 var autoprefix = require('gulp-autoprefixer');
-var minifyCSS = require('gulp-minify-css')
+var minifyCSS = require('gulp-minify-css');
+var connect = require('gulp-connect');
 
 //Pre-compiled directory
 var lessDir = 'src/less';
@@ -22,4 +23,11 @@ gulp.task('watch', function () {
     gulp.watch(lessDir + '/*.less', ['css']);
 });
 
-gulp.task('default', ['css', 'watch']);
+gulp.task('connect', function() {
+    connect.server({
+        root: '.',
+        livereload: true
+    })
+});
+
+gulp.task('default', ['css', 'watch', 'connect']);
