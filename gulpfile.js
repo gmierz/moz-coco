@@ -5,6 +5,7 @@ var less = require('gulp-less');
 var autoprefix = require('gulp-autoprefixer');
 var minifyCSS = require('gulp-minify-css');
 var connect = require('gulp-connect');
+var livereload = require('gulp-livereload');
 
 //Pre-compiled directory
 var lessDir = 'src/less';
@@ -17,9 +18,11 @@ gulp.task('css', function () {
         .pipe(less({ style: 'compressed' }).on('error', gutil.log))
         .pipe(gulp.dest(targetCSSDir))
         .pipe(notify('CSS minified'))
+        .pipe(livereload())
 });
 
 gulp.task('watch', function () {
+    livereload.listen();
     gulp.watch(lessDir + '/*.less', ['css']);
 });
 
