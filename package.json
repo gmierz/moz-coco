@@ -23,6 +23,7 @@
     "browserify": "^13.1.0",
     "flux": "^3.0.0",
     "grunt-cli": "^1.2.0",
+    "gulp-livereload": "^3.8.1",
     "keymirror": "^0.1.1",
     "less": "^2.7.1",
     "lodash.clonedeep": "^4.5.0",
