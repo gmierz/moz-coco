@@ -11,7 +11,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import {Button, Nav, NavItem, MenuItem, NavDropdown, ControlLabel,
-FormControl, InputGroup, FormGroup} from 'react-bootstrap';
+FormControl, InputGroup, FormGroup, ButtonToolbar, DropdownButton} from 'react-bootstrap';
 
 import InfoModal from './InfoModal';
 import ClientConstants from '../client/ClientConstants';
@@ -49,6 +49,13 @@ var RevisionSetter = React.createClass({
             <Button onClick={this.doSet}>Set</Button>
           </InputGroup.Button>
         </InputGroup>
+        <ButtonToolbar>
+          <DropdownButton bsSize="large" title="Revision ID" id="dropdown-size-large">
+            <MenuItem eventKey="1">4253e14676c2</MenuItem>
+            <MenuItem eventKey="2">6d1633095a92</MenuItem>
+            <MenuItem eventKey="3">26ced60e971a</MenuItem>
+          </DropdownButton>
+        </ButtonToolbar>
       </FormGroup>
     );
   }
