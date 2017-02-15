@@ -21,7 +21,7 @@ import PageActions from '../actions/PageActions';
 
 var RevisionSetter = React.createClass({
   getInitialState: function() {
-    return {revision: PageStore.getRevision()} 
+    return {revision: PageStore.getRevision(), revision_list: PageStore.getRevisionList()}
   },
   componentDidMount: function() {
     PageStore.addChangeListener(this._onChange, 'query');
@@ -39,6 +39,8 @@ var RevisionSetter = React.createClass({
     PageActions.setRevision(this.state.revision);
   },
   render: function() {
+    debugger
+    console.log(this.state.revision_list);
     return (
       <FormGroup>
         <ControlLabel>Revision ID</ControlLabel>
