@@ -39,7 +39,7 @@ var RevisionSetter = React.createClass({
     PageActions.setRevision(this.state.revision);
   },
   render: function() {
-    debugger
+    //TODO Populate dropdown with date/revision/count
     console.log(this.state.revision_list);
     return (
       <FormGroup>

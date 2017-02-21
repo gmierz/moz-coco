@@ -152,14 +152,15 @@ var TopLevel = React.createClass({
       "from":"coverage-summary",
       "limit":1000,
       "groupby":["build.date","build.revision12"],
-      "where":{"gte":{"build.date":{"date":"today-2month"}}}
+      "where":{"gte":{"build.date":{"date":"today-2month"}}},
+      "format":"list"
     },
     (data) => {
-      PageActions.setRevision(data.data[0][1]);
+      PageActions.setRevision(data.data[0].build.revision12);
 
       var revision_list = [];
       for (var i in data.data) {
-        revision_list.push(data.data[i][0])
+        revision_list.push(data.data[i])
       };
       PageActions.setRevisionList(revision_list);
 
