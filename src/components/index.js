@@ -148,17 +148,18 @@ var TopLevel = React.createClass({
     PageStore.addChangeListener(this._onChange);
     // Get latest query
     Client.makeRequest('activedata.allizom.org', {
+      "sort":{"build.date":"desc"},
       "from":"coverage-summary",
-      "limit":10,
-      "groupby":["build.date","build.revision12"]
+      "limit":1000,
+      "groupby":["build.date","build.revision12"],
+      "where":{"gte":{"build.date":{"date":"today-2month"}}}
     },
     (data) => {
-      //TODO(brad) this needs to be sorted by build.date not count
       PageActions.setRevision(data.data[0][1]);
 
       var revision_list = [];
       for (var i in data.data) {
-        revision_list.push(data.data[i][1])
+        revision_list.push(data.data[i][0])
       };
       PageActions.setRevisionList(revision_list);
 
