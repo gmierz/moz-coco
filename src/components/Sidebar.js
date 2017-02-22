@@ -38,9 +38,21 @@ var RevisionSetter = React.createClass({
   doSet: function() {
     PageActions.setRevision(this.state.revision);
   },
+  renderRevisions: function() {
+      var revision_list = [];
+      for (var i in this.state.revision_list) {
+          var buildDate = this.state.revision_list[i].build.date;
+          var buildRevision = this.state.revision_list[i].build.revision12;
+          var buildCount = this.state.revision_list[i].count;
+
+          revision_list.push(
+            <option value={buildRevision}>
+              {buildDate} | {buildRevision} | {buildCount}
+            </option>);
+      }
+      return revision_list;
+  },
   render: function() {
-    //TODO Populate dropdown with date/revision/count
-    console.log(this.state.revision_list);
     return (
       <FormGroup>
         <ControlLabel>Revision ID</ControlLabel>
@@ -51,13 +63,16 @@ var RevisionSetter = React.createClass({
             <Button onClick={this.doSet}>Set</Button>
           </InputGroup.Button>
         </InputGroup>
-        <ButtonToolbar>
-          <DropdownButton bsSize="large" title="Revision ID" id="dropdown-size-large">
-            <MenuItem eventKey="1">4253e14676c2</MenuItem>
-            <MenuItem eventKey="2">6d1633095a92</MenuItem>
-            <MenuItem eventKey="3">26ced60e971a</MenuItem>
-          </DropdownButton>
-        </ButtonToolbar>
+        {/*<ButtonToolbar>*/}
+          {/*<DropdownButton bsSize="large" title="Revision ID" id="dropdown-size-large">*/}
+              {/*{this.renderRevisions()}*/}
+          {/*</DropdownButton>*/}
+        {/*</ButtonToolbar>*/}
+        <ControlLabel>Select Revision (Last 2 months)</ControlLabel>
+        <FormControl onChange={this.handleR} value={this.state.value}  onClick={this.doSet} componentClass="select">
+          <option>Select a revision...</option>
+            {this.renderRevisions()}
+        </FormControl>
       </FormGroup>
     );
   }
