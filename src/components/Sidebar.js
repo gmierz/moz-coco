@@ -41,7 +41,8 @@ var RevisionSetter = React.createClass({
   renderRevisions: function() {
       var revision_list = [];
       for (var i in this.state.revision_list) {
-          var buildDate = this.state.revision_list[i].build.date;
+
+          var buildDate = new Date(this.state.revision_list[i].build.date * 1000).toISOString();
           var buildRevision = this.state.revision_list[i].build.revision12;
           var buildCount = this.state.revision_list[i].count;
 
@@ -63,11 +64,6 @@ var RevisionSetter = React.createClass({
             <Button onClick={this.doSet}>Set</Button>
           </InputGroup.Button>
         </InputGroup>
-        {/*<ButtonToolbar>*/}
-          {/*<DropdownButton bsSize="large" title="Revision ID" id="dropdown-size-large">*/}
-              {/*{this.renderRevisions()}*/}
-          {/*</DropdownButton>*/}
-        {/*</ButtonToolbar>*/}
         <ControlLabel>Select Revision (Last 2 months)</ControlLabel>
         <FormControl onChange={this.handleR} value={this.state.value}  onClick={this.doSet} componentClass="select">
           <option>Select a revision...</option>
