@@ -34,18 +34,21 @@ var RevisionSetter = React.createClass({
   },
   handleR: function(e) {
     this.setState({revision: e.target.value});
+    PageActions.setRevision(e.target.value);
   },
   doSet: function() {
     PageActions.setRevision(this.state.revision);
   },
+  doSetByRevisionList: function (e) {
+      this.setState({revision: e.target.value});
+      PageActions.setRevision(e.target.value);
+  },
   renderRevisions: function() {
       var revision_list = [];
       for (var i in this.state.revision_list) {
-
           var buildDate = new Date(this.state.revision_list[i].build.date * 1000).toISOString();
           var buildRevision = this.state.revision_list[i].build.revision12;
           var buildCount = this.state.revision_list[i].count;
-
           revision_list.push(
             <option value={buildRevision}>
               {buildDate} | {buildRevision} | {buildCount}
@@ -64,10 +67,11 @@ var RevisionSetter = React.createClass({
             <Button onClick={this.doSet}>Set</Button>
           </InputGroup.Button>
         </InputGroup>
+        <br/>
         <ControlLabel>Select Revision (Last 2 months)</ControlLabel>
-        <FormControl onChange={this.handleR} value={this.state.value}  onClick={this.doSet} componentClass="select">
-          <option>Select a revision...</option>
-            {this.renderRevisions()}
+        <FormControl onChange={this.doSetByRevisionList} value={this.state.value} componentClass="select">
+          <option selected="selected" disabled>Select a revision...</option>
+          {this.renderRevisions()}
         </FormControl>
       </FormGroup>
     );
