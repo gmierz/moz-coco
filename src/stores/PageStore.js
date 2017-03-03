@@ -19,6 +19,7 @@ const DRILL_EVENT = 'drill';
 var _selected = null;
 var _context = null;
 var _revision = null;
+var _revisionList = null;
 var _pages = {};
 var _current_page = 0;
 var _id_incrementor = 0;
@@ -67,6 +68,11 @@ function setRevision(q) {
   _revision = q;
 }
 
+function setRevisionList(q) {
+  _revisionList = q;
+}
+
+
 var PageStore = Object.assign({}, EventEmitter.prototype, {
   
   getQuery: function() {
@@ -91,6 +97,10 @@ var PageStore = Object.assign({}, EventEmitter.prototype, {
   
   getRevision: function() {
     return _revision;
+  },
+
+  getRevisionList: function() {
+    return _revisionList;
   },
 
   emitChange: function(evnt = CHANGE_EVENT) {
@@ -135,6 +145,10 @@ AppDispatcher.register(function(action) {
       break; 
     case PageConstants.SET_REVISION:
       setRevision(action.set);
+      PageStore.emitChange(QUERY_EVENT);
+      break;
+    case PageConstants.SET_REVISION_LIST:
+      setRevisionList(action.set);
       PageStore.emitChange(QUERY_EVENT);
       break;
     default:

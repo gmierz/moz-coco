@@ -11,7 +11,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import {Button, Nav, NavItem, MenuItem, NavDropdown, ControlLabel,
-FormControl, InputGroup, FormGroup} from 'react-bootstrap';
+FormControl, InputGroup, FormGroup, ButtonToolbar, DropdownButton} from 'react-bootstrap';
 
 import InfoModal from './InfoModal';
 import ClientConstants from '../client/ClientConstants';
@@ -21,7 +21,7 @@ import PageActions from '../actions/PageActions';
 
 var RevisionSetter = React.createClass({
   getInitialState: function() {
-    return {revision: PageStore.getRevision()} 
+    return {revision: PageStore.getRevision(), revision_list: PageStore.getRevisionList()}
   },
   componentDidMount: function() {
     PageStore.addChangeListener(this._onChange, 'query');
@@ -34,9 +34,27 @@ var RevisionSetter = React.createClass({
   },
   handleR: function(e) {
     this.setState({revision: e.target.value});
+    PageActions.setRevision(e.target.value);
   },
   doSet: function() {
     PageActions.setRevision(this.state.revision);
+  },
+  doSetByRevisionList: function (e) {
+      this.setState({revision: e.target.value});
+      PageActions.setRevision(e.target.value);
+  },
+  renderRevisions: function() {
+      var revision_list = [];
+      for (var i in this.state.revision_list) {
+          var buildDate = new Date(this.state.revision_list[i].build.date * 1000).toISOString();
+          var buildRevision = this.state.revision_list[i].build.revision12;
+          var buildCount = this.state.revision_list[i].count;
+          revision_list.push(
+            <option value={buildRevision}>
+              {buildDate} | {buildRevision} | {buildCount}
+            </option>);
+      }
+      return revision_list;
   },
   render: function() {
     return (
@@ -49,6 +67,12 @@ var RevisionSetter = React.createClass({
             <Button onClick={this.doSet}>Set</Button>
           </InputGroup.Button>
         </InputGroup>
+        <br/>
+        <ControlLabel>Select Revision (Last 2 months)</ControlLabel>
+        <FormControl onChange={this.doSetByRevisionList} value={this.state.value} componentClass="select">
+          <option selected="selected" disabled>Select a revision...</option>
+          {this.renderRevisions()}
+        </FormControl>
       </FormGroup>
     );
   }
