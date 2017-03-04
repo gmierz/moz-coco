@@ -46,10 +46,17 @@ var PageActions = {
       actionType: PageConstants.SET_SELECTED,
       set: q
     });
-  }, 
+  },
+
   setRevision: function(q) {
     AppDispatcher.dispatch({
       actionType: PageConstants.SET_REVISION,
+      set: q
+    });
+  },
+  setRevisionList: function(q) {
+    AppDispatcher.dispatch({
+      actionType: PageConstants.SET_REVISION_LIST,
       set: q
     });
   }
