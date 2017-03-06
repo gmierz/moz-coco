@@ -55,7 +55,7 @@ Various JavaScript libraries/frameworks are pulled in order to compile a browser
 3. wait for code compilation
 4. `npm start` (runs a local webserver)
 
-See docs for more info [here](development.md)
+See docs for more info [here](docs/project/development.md)
 
 
 ##Code
