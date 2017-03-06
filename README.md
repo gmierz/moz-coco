@@ -1,7 +1,7 @@
 #Coco
 
 
-Part of the 2016 UCOSP Code Coverage Team working with Mozilla to bring code coverage data to the people who need it.
+Part of the UCOSP Code Coverage Team working with Mozilla to bring code coverage data to the people who need it.
 
 *I can bear-ly contain my excitement*
 
@@ -10,7 +10,9 @@ Part of the 2016 UCOSP Code Coverage Team working with Mozilla to bring code cov
 A zero knowledge interface for ActiveData queries. Primarily directed toward distributing code coverage data. Built for stakeholders to access pertinent data housed in ActiveData without struggling with query language or schemas. 
 
 ##Skip the details
-*Okay,* just head over to https://co60ca.github.io/coco
+*Okay,* just head over [here](https://ericdesj.github.io/moz-coco-w17-preview/) (updated Winter 2017)
+
+
 
 ###Problem
 
@@ -53,9 +55,10 @@ Various JavaScript libraries/frameworks are pulled in order to compile a browser
 3. wait for code compilation
 4. `npm start` (runs a local webserver)
 
+See docs for more info [here](docs/project/development.md)
+
 
 ##Code
-
 https://github.com/co60ca/moz-codecover-ui
 
 ##Contact
@@ -66,8 +69,12 @@ IRC: ekyle@irc.mozilla.org
 Email: klahnakoski@mozilla.org  
 Bugzilla: :ekyle  
 
-###Participant
+###Participants
 Brad Kennedy  
 IRC: co60ca@irc.mozilla.org  
 Email: bk@co60.ca  
 Bugzilla: :co60ca  
+
+Eric Desjardins  
+Email: ericd@dal.ca  
+Bugzilla: :ericd  

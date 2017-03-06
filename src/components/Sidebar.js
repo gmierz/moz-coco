@@ -32,14 +32,7 @@ var RevisionSetter = React.createClass({
   _onChange: function() {
     this.setState({revision: PageStore.getRevision()});
   },
-  handleR: function(e) {
-    this.setState({revision: e.target.value});
-    PageActions.setRevision(e.target.value);
-  },
-  doSet: function() {
-    PageActions.setRevision(this.state.revision);
-  },
-  doSetByRevisionList: function (e) {
+  doSetRevision: function (e) {
       this.setState({revision: e.target.value});
       PageActions.setRevision(e.target.value);
   },
@@ -59,17 +52,8 @@ var RevisionSetter = React.createClass({
   render: function() {
     return (
       <FormGroup>
-        <ControlLabel>Revision ID</ControlLabel>
-        <InputGroup>
-          <FormControl onChange={this.handleR} type="text" placeholder="Revision"
-            value={this.state.revision || ""} />
-          <InputGroup.Button>
-            <Button onClick={this.doSet}>Set</Button>
-          </InputGroup.Button>
-        </InputGroup>
-        <br/>
         <ControlLabel>Select Revision (Last 2 months)</ControlLabel>
-        <FormControl onChange={this.doSetByRevisionList} value={this.state.value} componentClass="select">
+        <FormControl onChange={this.doSetRevision} value={this.state.value} componentClass="select">
           <option selected="selected" disabled>Select a revision...</option>
           {this.renderRevisions()}
         </FormControl>
