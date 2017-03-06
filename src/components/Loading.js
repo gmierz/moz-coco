@@ -25,7 +25,7 @@ var Loading = React.createClass({
   componentDidMount: function() {
     setTimeout(() => {
       this.setState({hidden: false});
-      this.toggle(true);
+      this.toggle(false);
     }, 5);
     if(this.props.then) {
       setTimeout(() => {
