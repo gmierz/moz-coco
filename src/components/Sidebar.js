@@ -216,7 +216,13 @@ var Sidebar = React.createClass({
             "img-responsive" width="150"></img>;
     var banner = 
         <div className={"bottom"}>
-          Coco made with ♥ by the Code Coverage team
+          <p>
+            Report a bug or request a feature
+            <a href="https://github.com/ericdesj/moz-codecover-ui/issues"> here</a> (GitHub Issues)
+          </p>
+          <p>
+            Coco made with ♥ by the Code Coverage team
+          </p>
         </div>;
 
     var contextview = <PropertyViewer header={'Context'} />;
