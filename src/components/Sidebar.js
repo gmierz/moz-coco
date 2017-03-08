@@ -218,7 +218,7 @@ var Sidebar = React.createClass({
         <div className={"bottom"}>
           <p>
             Report a bug or request a feature
-            <a href="https://github.com/ericdesj/moz-codecover-ui/issues"> here</a> (GitHub Issues)
+            <a href="https://github.com/ericdesj/moz-codecover-ui/issues"> here</a>
           </p>
           <p>
             Coco made with ♥ by the Code Coverage team
