@@ -30,6 +30,13 @@ const Example = React.createClass({
           <h4>
             <a href="https://github.com/co60ca/moz-codecover-ui">Github Link / Project Description</a>
           </h4>
+          <h3>Winter 2017 Fork</h3>
+          <h4>
+            <a href="https://github.com/ericdesj/moz-codecover-ui">Github Link / Project Description</a>
+          </h4>
+          <h4>
+            <a href="https://github.com/ericdesj/moz-codecover-ui/issues">Create GitHub Issue</a>
+          </h4>
           <hr/>
           <h3>Legend</h3>
           <hr/>
