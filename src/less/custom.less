@@ -6,6 +6,8 @@ html, body, .page-wrapper, #react-root {
 }
 
 @sidebarcolor: #7488c1;
+@sidebarlink: #ddd;
+
 .sidebar {
   position: fixed;
   z-index: 1000;
@@ -33,6 +35,10 @@ html, body, .page-wrapper, #react-root {
   margin-left: 5px;
   margin-bottom: 5px;
   color: darken(@sidebarcolor, 10%);
+  a, a:visited {
+    color: darken(@sidebarlink, 10%);
+    text-decoration: none;
+  }
 }
 
 .page-wrapper {

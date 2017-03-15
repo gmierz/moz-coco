@@ -32,14 +32,7 @@ var RevisionSetter = React.createClass({
   _onChange: function() {
     this.setState({revision: PageStore.getRevision()});
   },
-  handleR: function(e) {
-    this.setState({revision: e.target.value});
-    PageActions.setRevision(e.target.value);
-  },
-  doSet: function() {
-    PageActions.setRevision(this.state.revision);
-  },
-  doSetByRevisionList: function (e) {
+  doSetRevision: function (e) {
       this.setState({revision: e.target.value});
       PageActions.setRevision(e.target.value);
   },
@@ -59,17 +52,8 @@ var RevisionSetter = React.createClass({
   render: function() {
     return (
       <FormGroup>
-        <ControlLabel>Revision ID</ControlLabel>
-        <InputGroup>
-          <FormControl onChange={this.handleR} type="text" placeholder="Revision"
-            value={this.state.revision || ""} />
-          <InputGroup.Button>
-            <Button onClick={this.doSet}>Set</Button>
-          </InputGroup.Button>
-        </InputGroup>
-        <br/>
         <ControlLabel>Select Revision (Last 2 months)</ControlLabel>
-        <FormControl onChange={this.doSetByRevisionList} value={this.state.value} componentClass="select">
+        <FormControl onChange={this.doSetRevision} value={this.state.value} componentClass="select">
           <option selected="selected" disabled>Select a revision...</option>
           {this.renderRevisions()}
         </FormControl>
@@ -232,7 +216,13 @@ var Sidebar = React.createClass({
             "img-responsive" width="150"></img>;
     var banner = 
         <div className={"bottom"}>
-          Coco made with ♥ by the Code Coverage team
+          <p>
+            Report a bug or request a feature
+            <a href="https://github.com/ericdesj/moz-codecover-ui/issues/new"> here</a>
+          </p>
+          <p>
+            Coco made with ♥ by the Code Coverage team
+          </p>
         </div>;
 
     var contextview = <PropertyViewer header={'Context'} />;
