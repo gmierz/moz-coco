@@ -9,7 +9,7 @@ Part of the UCOSP Code Coverage Team working with Mozilla to bring code coverage
 A zero knowledge interface for ActiveData queries. Primarily directed toward distributing code coverage data. Built for stakeholders to access pertinent data housed in ActiveData without struggling with query language or schemas.
 
 ## Skip the details
-*Okay,* just head over [here](https://ericdesj.github.io/moz-coco-w17-preview/) (updated Winter 2017)
+*Okay,* just head over [here](https://ericdesj.github.io/moz-coco-w17-preview/) (updated March 2017)
 
 ### Problem
 
@@ -57,7 +57,7 @@ Various JavaScript libraries/frameworks are pulled in order to compile a browser
 See docs for more info [here](docs/project/development.md)
 
 ## Code
-https://github.com/co60ca/moz-codecover-ui
+https://github.com/mozilla/moz-coco
 
 ## Contact
 
