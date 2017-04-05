@@ -18,20 +18,25 @@ structure, scripts and developer workflow.
 
 ## Project Information
 
-###Scripts
+### Scripts
 All the project `npm install/fast` scripts are within the `/scripts` directory.
 
 **npm install**
 The install script sets the project to production mode in `config.js` for GitHub hosting purposes. For development,
 purposes set the variable back to `false`.
 
-###Queries
+### Queries
 In a nutshell, queries are in the `/queries` directory and get concatenated to `ClientContants.js` with the
 `scripts/concatqueries.js` when running `npm install/fast`.
 
 New queries should be create in the `/queries` directory and use the same template as existing queries.
 
-###Hosting the Project
+### Hosting the Project
 The changes made to this fork are manually transferred to this 
 [repository](https://github.com/ericdesj/moz-coco-w17-preview). We use GitHub Pages to host the project for free and
 make it available for demo or testing. The page is available [here](https://ericdesj.github.io/moz-coco-w17-preview/).
+
+### Relay service
+To avoid issues with CORS we built a relay service for Mozilla hg where you can get raw files or markup code (to borrow
+syntax highlighting from hg). You can deploy the service for your personal use to Heroku with the 'Deploy to Heroku' 
+button. Check the repo out [here](https://github.com/ericdesj/moz-coco-relay).

@@ -42,10 +42,21 @@ var RevisionSetter = React.createClass({
           var buildDate = new Date(this.state.revision_list[i].build.date * 1000).toISOString();
           var buildRevision = this.state.revision_list[i].build.revision12;
           var buildCount = this.state.revision_list[i].count;
-          revision_list.push(
-            <option value={buildRevision}>
-              {buildDate} | {buildRevision} | {buildCount}
-            </option>);
+          var buildLanguage = "";
+          try {
+              buildLanguage = this.state.revision_list[i].source.language;
+          } catch(e) {}
+          if(buildLanguage){
+              revision_list.push(
+                <option value={buildRevision}>
+                    {buildDate} | {buildRevision} | {buildCount} | {buildLanguage}
+                </option>);
+          } else {
+              revision_list.push(
+                <option value={buildRevision}>
+                    {buildDate} | {buildRevision} | {buildCount}
+                </option>);
+          }
       }
       return revision_list;
   },

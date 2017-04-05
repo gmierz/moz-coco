@@ -146,12 +146,12 @@ var TopLevel = React.createClass({
   },
   componentWillMount: function() {
     PageStore.addChangeListener(this._onChange);
-    // Get latest query
+    // Get latest revision query (last two months)
     Client.makeRequest('activedata.allizom.org', {
       "sort":{"build.date":"desc"},
       "from":"coverage-summary",
       "limit":1000,
-      "groupby":["build.date","build.revision12"],
+      "groupby":["build.date","build.revision12","source.language"],
       "where":{"gte":{"build.date":{"date":"today-2month"}}},
       "format":"list"
     },
