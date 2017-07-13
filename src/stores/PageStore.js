@@ -24,7 +24,10 @@ var _pages = {};
 var _current_page = 0;
 var _id_incrementor = 0;
 var _sidebar_collapsed = false;
-var _changeset = "Select a changeset."
+var _changeset = "ebb97fbc6c39785a4da80e0770d2ef52b8e543fb";
+var _branch = "try";
+var _patchdiffdata = null;
+var _bugData = null;
 
 /* PageStore contains and dispatches update events when actions are run
  * this allows multiple components to listen for changes
@@ -106,6 +109,30 @@ var PageStore = Object.assign({}, EventEmitter.prototype, {
 
   getChangeset: function() {
     return _changeset;
+  },
+
+  getPatchDiffData: function() {
+    return _patchdiffdata;
+  },
+
+  getBugData: function() {
+    return _bugData;
+  },
+
+  getBranch: function() {
+    return _branch;
+  },
+
+  setBranch: function(branch) {
+    _branch = branch;
+  },
+
+  setBugData: function(bugData) {
+    _bugData = bugData;
+  },
+
+  setPatchDiffData: function(patchdiffdata) {
+    _patchdiffdata = patchdiffdata;
   },
 
   setChangeset: function(changeset) {

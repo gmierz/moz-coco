@@ -140,6 +140,21 @@ var CocoTable = React.createClass({
   }
 });
 
+var getJSON = function(url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.responseType = 'json';
+    xhr.onload = function() {
+      var status = xhr.status;
+      if (status == 200) {
+        callback(null, xhr.response);
+      } else {
+        callback(status);
+      }
+    };
+    xhr.send();
+};
+
 var CocoPatchDiff = React.createClass({
   getInitialState: function() {
     return {query: null, data: null, loading_diff_data: false};
@@ -161,9 +176,21 @@ var CocoPatchDiff = React.createClass({
   },
   _onLoadingDiff: function() {
     this.setState({data: null, query: null, loading_diff_data: true});
-    setTimeout(() => {
-      this.setState({data: null, query: null, loading_diff_data: false});
-    }, 1200);
+    var curr_changeset = PageStore.getChangeset();
+    var branch = PageStore.getBranch();
+    var prefix_str = "https://hg.mozilla.org/"
+    var file_to_find = "taskcluster/ci/test/test-platforms.yml"
+    var total_str = prefix_str.concat(branch.concat("/json-diff/".concat(curr_changeset.concat("/".concat(file_to_find)))))
+    console.log(total_str)
+    var json_file = getJSON(total_str, this._loadedBug);
+  },
+  _loadedBug: function(err, data) {
+    console.log(data);
+    PageStore.setBugData(data);
+    PageStore.setPatchDiffData("a patch diff");
+    PageStore.emitChange('loaded_bug_info');
+    PageStore.emitChange('loaded_patch_data');
+    this.setState({data: null, query: null, loading_diff_data: false});
   },
   render: function() {
     if (!this.state.loading_diff_data) {
