@@ -24,6 +24,7 @@ var _pages = {};
 var _current_page = 0;
 var _id_incrementor = 0;
 var _sidebar_collapsed = false;
+var _changeset = "Select a changeset."
 
 /* PageStore contains and dispatches update events when actions are run
  * this allows multiple components to listen for changes
@@ -101,6 +102,14 @@ var PageStore = Object.assign({}, EventEmitter.prototype, {
 
   getRevisionList: function() {
     return _revisionList;
+  },
+
+  getChangeset: function() {
+    return _changeset;
+  },
+
+  setChangeset: function(changeset) {
+    _changeset = changeset;
   },
 
   emitChange: function(evnt = CHANGE_EVENT) {

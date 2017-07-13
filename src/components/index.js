@@ -20,6 +20,7 @@ import ClientFilter from '../client/ClientFilter';
 import {addIndexArray} from '../ReactUtil';
 import {TableRowData, TableHeadData} from './Tables';
 import {Sidebar, NavOptions} from './Sidebar';
+import {DiffInfoStore, DiffViewer} from './DiffViewer';
 import Loading from './Loading';
 import Errors from '../Errors';
 import Config from '../Config';
@@ -141,7 +142,7 @@ var CocoTable = React.createClass({
 
 var CocoPatchDiff = React.createClass({
   getInitialState: function() {
-    return {query: null, data: null, drillDownContext: null};
+    return {query: null, data: null, loading_diff_data: false};
   },
   componentWillMount: function() {
     if (!PageStore.getRevision()) {
@@ -149,64 +150,40 @@ var CocoPatchDiff = React.createClass({
     }
     //this.sendQuery();
     PageStore.addChangeListener(this._onChange, 'query');
+    PageStore.addChangeListener(this._onLoadingDiff, 'loading_patch_diff')
   },
   componentWillUnmount: function() {
+    PageStore.removeChangeListener(this._onChange, 'query');
+    PageStore.removeChangeListener(this._onLoadingDiff, 'loading_patch_diff');
   },
   _onChange: function(e) {
-    this.setState({data: null, query: null}, this.sendQuery);
+    this.setState({data: null, query: null, loading_diff_data: false});
   },
-  sendQuery: function() {
-    if (this.state.query == null || this.state.query == "") {
-      return;
-    }
-    // If filter_revision is set we need to modify the revision number
-    var queryJSON = this.state.query.remote_request;
-
-    if (this.state.query.filter_revision) {
-      // Mutates original query
-      var revision = PageStore.getRevision();
-
-      if(!ClientFilter.setRevision(queryJSON, revision)) {
-        Errors.handleError(Errors.warn, "filter_revision was set in query but"
-          + " was not able to be set through a search of the query, data may"
-          + " be not as expected, or represent another revision");
-      }
-    }
-
-    if (this.state.query.drills_down && PageStore.getSelected()) {
-      var ddresults = this.state.query.drillDown(PageStore.getSelected(), 
-          PageStore.getContext());
-      PageActions.setContext(ddresults.context);
-      queryJSON = ddresults.remote_request;
-    }
-    if (this.state.query.query_override) {
-      var prom;
-      if (ddresults) {
-        prom = this.state.query.override(
-            ddresults.remote_request, ddresults.context);
-      } else {
-        prom = this.state.query.override(this.state.query.remote_request, "");
-      }
-      prom.then((val) => {
-        if (this.state.query.processPre) {
-          this.state.query.processPre(this, val);
-        }
-      });
-    } else {
-      Client.makeRequest('activedata.allizom.org',
-          queryJSON, (data) => {
-        if (this.state.query.processPre) {
-          this.state.query.processPre(this, data);
-        }
-      });
-    }
+  _onLoadingDiff: function() {
+    this.setState({data: null, query: null, loading_diff_data: true});
+    setTimeout(() => {
+      this.setState({data: null, query: null, loading_diff_data: false});
+    }, 1200);
   },
   render: function() {
-    return (
-      <p>
-      Hello World~!
-      </p>
-    );
+    if (!this.state.loading_diff_data) {
+      return (
+        <div className="diff_view">
+          <DiffInfoStore />
+          <DiffViewer />
+        </div>
+      );
+    } else {
+      return (
+        <div className="diff_view">
+          <DiffInfoStore />
+          <div className="row loading-bar">
+            Processing changeset {PageStore.getChangeset()}... <br></br>
+            <img src="icons/8-1.gif"></img>
+          </div>
+        </div>
+      );
+    }
   }
 });
 
@@ -229,7 +206,7 @@ var TopLevel = React.createClass({
       "format":"list"
     },
     (data) => {
-      /*
+      
       PageActions.setRevision(data.data[0].build.revision12);
 
       var revision_list = [];
@@ -245,7 +222,7 @@ var TopLevel = React.createClass({
           + " this is not a final project and should be expected to have no"
           + " reliability");
       }
-      */
+      
       this.setState({loading: false, start_state:true});
     });
   },

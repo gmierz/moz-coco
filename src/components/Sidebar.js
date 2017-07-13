@@ -219,6 +219,7 @@ var Sidebar = React.createClass({
   componentWillUnmount: function() {
     PageStore.removeChangeListener(this._onChange);
     PageStore.removeChangeListener(this._onChange, 'query');
+    PageStore.removeChangeListener(this._onSidebarChange, 'sidebar_change');
   },
   _onChange: function() {
     var pscollapsed = PageStore.getCollapsed();
@@ -268,10 +269,10 @@ var Sidebar = React.createClass({
             <NavButton callback={function() {
               PageActions.toggleSidebar();
             }}/>
-            <ChangeSidebarButton callback={function() {
+            {!this.state.collapsed && <ChangeSidebarButton callback={function() {
               PageStore.emitChange('sidebar_change')
               PageStore.emitChange('cocopatchdiff')
-            }}/>
+            }}/>}
             {displayChildren && imgico}
           </div>
           {displayChildren && 
@@ -309,7 +310,6 @@ var Sidebar = React.createClass({
               <div><p>Coverage Queries</p></div>
               </NavItem> 
             </Nav>
-            <RevisionSetter />
             <InfoModal/>
           </div>
           {displayChildren && banner}
