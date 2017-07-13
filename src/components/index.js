@@ -176,6 +176,7 @@ var CocoPatchDiff = React.createClass({
   },
   _onLoadingDiff: function() {
     this.setState({data: null, query: null, loading_diff_data: true});
+    PageStore.emitChange('loading_bug_info');
     var curr_changeset = PageStore.getChangeset();
     var branch = PageStore.getBranch();
     var prefix_str = "https://hg.mozilla.org/"

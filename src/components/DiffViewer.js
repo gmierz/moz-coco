@@ -28,19 +28,22 @@ var DiffInfoStore = React.createClass({
       PageActions.setRevision("d19d1d2136bb");
     }
     //this.sendQuery();
+    PageStore.addChangeListener(this._onDataLoading, 'loading_bug_info');
     PageStore.addChangeListener(this._onDataLoad, 'loaded_bug_info');
   },
   componentWillUnmount: function() {
+    PageStore.removeChangeListener(this._onDataLoading, 'loading_bug_info');
     PageStore.removeChangeListener(this._onDataLoad, 'loaded_bug_info');
   },
   _onInput: function(event) {
     PageStore.setChangeset(event.target.value);
-    PageStore.setPatchDiffData(null);
-    PageStore.emitChange('loaded_patch_data')
-    this.setState({loaded_bug_info: false, data: null, changeset: event.target.value})
+    this.setState({loaded_bug_info: this.state.loaded_bug_info, data: null, changeset: event.target.value})
   },
   _onDataLoad: function() {
     this.setState({loaded_bug_info: true, data: PageStore.getBugData(), changeset: this.state.changeset});
+  },
+  _onDataLoading: function() {
+    this.setState({loaded_bug_info: false, data: null, changeset: this.state.changeset});
   },
   getValidationState: function() {
     const length = this.state.changeset.length;
