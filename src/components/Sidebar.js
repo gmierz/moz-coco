@@ -83,6 +83,16 @@ var NavButton = React.createClass({
   }
 });
 
+var ChangeSidebarButton = React.createClass({
+  render: function() {
+    return (
+      <Button onClick={this.props.callback}>
+        <i className="fa fa-bars" aria-hidden="false" ></i> Home
+      </Button>
+    );
+  }
+});
+
 var NavOptions = React.createClass({
   getInitialState: function() {
     return {};
@@ -194,11 +204,12 @@ var PropertyViewer = React.createClass({
 
 var Sidebar = React.createClass({
   getInitialState: function() {
-        return {"collapsed": false, "opening": false};
+        return {"collapsed": false, "opening": false, "starter_bar": true};
   },
   componentWillMount: function() {
     PageStore.addChangeListener(this._onChange);
     PageStore.addChangeListener(this._onChange, 'query');
+    PageStore.addChangeListener(this._onSidebarChange, 'sidebar_change')
     // Seed the Sidebar with queries
 
     ClientConstants.forEach((q) => {
@@ -220,6 +231,9 @@ var Sidebar = React.createClass({
    } else {
     this.setState({"collapsed": pscollapsed}); 
    }
+  },
+  _onSidebarChange: function() {
+    this.setState({"starter_bar": !this.state.starter_bar});
   },
   render: function() {
     var classnametxt = "sidebar";
@@ -246,26 +260,62 @@ var Sidebar = React.createClass({
     if (this.state.collapsed || this.state.opening) {
       displayChildren = false;
     }
-    return (
-      <div id="sidebar" className={classnametxt}>
-        <div style={{textAlign: "right"}}>
-          <NavButton callback={function() {
-            PageActions.toggleSidebar();
-          }}/>
-          {displayChildren && imgico}
+
+    if (!this.state.starter_bar || this.state.collapsed) {
+      return (
+        <div id="sidebar" className={classnametxt}>
+          <div style={{textAlign: "right"}}>
+            <NavButton callback={function() {
+              PageActions.toggleSidebar();
+            }}/>
+            <ChangeSidebarButton callback={function() {
+              PageStore.emitChange('sidebar_change')
+              PageStore.emitChange('cocopatchdiff')
+            }}/>
+            {displayChildren && imgico}
+          </div>
+          {displayChildren && 
+          <div>
+            {this.props.children}
+            {contextview}
+            {PageStore.getQuery().filter_revision}
+            <RevisionSetter />
+            <InfoModal/>
+          </div>
+          }
+          {displayChildren && banner}
         </div>
-        {displayChildren && 
-        <div>
-          {this.props.children}
-          {contextview}
-          {PageStore.getQuery().filter_revision}
-          <RevisionSetter />
-          <InfoModal/>
+      );
+    } else {
+      return (
+        <div id="sidebar" className={classnametxt}>
+          <div style={{textAlign: "right"}}>
+            <NavButton callback={function() {
+              PageActions.toggleSidebar();
+            }}/>
+            {displayChildren && imgico}
+          </div>
+          <div>
+            <Nav stacked activeKey={1} style={{marginTop: '20px'}}>
+              <NavItem onClick={function () {
+                PageStore.emitChange('cocopatchdiff');
+              }}>
+              <div><p>Coverage Patch Diff</p></div>
+              </NavItem>
+              <NavItem onClick={function () {
+                PageStore.emitChange('sidebar_change');
+                PageStore.emitChange('cocotable');
+              }}>
+              <div><p>Coverage Queries</p></div>
+              </NavItem> 
+            </Nav>
+            <RevisionSetter />
+            <InfoModal/>
+          </div>
+          {displayChildren && banner}
         </div>
-        }
-        {displayChildren && banner}
-      </div>
-    );
+      );
+    }
   }
 });
 
