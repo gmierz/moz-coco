@@ -80,7 +80,7 @@ var DiffInfoStore = React.createClass({
         <PageHeader>Coverage Patch Diff Tool</PageHeader>
         </div>
         <div>
-        <Form horizontal>
+        <Form>
           <FormGroup controlId="changesetForm" validationState={this.getValidationState()}>
             <ControlLabel>Select Changeset</ControlLabel>
             <FormControl onChange={this._onInput} value={this.state.changeset} placeholder="Enter changeset">
