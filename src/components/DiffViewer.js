@@ -10,7 +10,8 @@ import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 
 import {Button, Nav, NavItem, MenuItem, NavDropdown, ControlLabel, PageHeader, ListGroup, ListGroupItem,
-FormControl, InputGroup, FormGroup, ButtonToolbar, DropdownButton, TextInput, HelpBlock} from 'react-bootstrap';
+FormControl, InputGroup, FormGroup, ButtonToolbar, DropdownButton, TextInput, HelpBlock, SplitButton,
+Form} from 'react-bootstrap';
 
 import PageStore from '../stores/PageStore';
 import PageActions from '../actions/PageActions';
@@ -21,7 +22,7 @@ import ClientFilter from '../client/ClientFilter';
 
 var DiffInfoStore = React.createClass({
   getInitialState: function() {
-    return {loaded_bug_info: false, data: null, changeset: PageStore.getChangeset()};
+    return {loaded_bug_info: false, data: null, changeset: PageStore.getChangeset(), branch: PageStore.getBranch()};
   },
   componentWillMount: function() {
     if (!PageStore.getRevision()) {
@@ -32,6 +33,7 @@ var DiffInfoStore = React.createClass({
     PageStore.addChangeListener(this._onDataLoad, 'loaded_bug_info');
   },
   componentWillUnmount: function() {
+    this.setState({loaded_bug_info: false, data: null, changeset: PageStore.getChangeset()});
     PageStore.removeChangeListener(this._onDataLoading, 'loading_bug_info');
     PageStore.removeChangeListener(this._onDataLoad, 'loaded_bug_info');
   },
@@ -44,6 +46,10 @@ var DiffInfoStore = React.createClass({
   },
   _onDataLoading: function() {
     this.setState({loaded_bug_info: false, data: null, changeset: this.state.changeset});
+  },
+  _onBranchPick: function(event) {
+    this.setState({branch: event.target.value});
+    PageStore.setBranch(event.target.value);
   },
   getValidationState: function() {
     const length = this.state.changeset.length;
@@ -74,15 +80,25 @@ var DiffInfoStore = React.createClass({
         <PageHeader>Coverage Patch Diff Tool</PageHeader>
         </div>
         <div>
-        <form>
+        <Form horizontal>
           <FormGroup controlId="changesetForm" validationState={this.getValidationState()}>
             <ControlLabel>Select Changeset</ControlLabel>
             <FormControl onChange={this._onInput} value={this.state.changeset} placeholder="Enter changeset">
             </FormControl>
             <FormControl.Feedback />
             <HelpBlock>Changing this field after getting results will cause you to lose everything that was generated. </HelpBlock>
+
+            <ControlLabel>Select a Branch</ControlLabel>
+            <FormControl onChange={this._onBranchPick} value={this.state.branch} componentClass="select" style={{maxWidth: '' + 50 + '%'}}>
+              <option value="mozilla-central">mozilla-central</option>
+              <option value="beta">beta</option>
+              <option value="try">try</option>
+            </FormControl>
           </FormGroup>
-        </form>
+          <FormGroup>
+
+          </FormGroup>
+        </Form>
         </div> 
         <Button onClick={function () {
           PageStore.emitChange('loading_patch_diff');
