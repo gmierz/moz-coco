@@ -53,9 +53,8 @@ var DiffInfoStore = React.createClass({
   },
   getValidationState: function() {
     const length = this.state.changeset.length;
-    if (length > 10) return 'success';
-    else if (length > 5) return 'warning';
-    else if (length > 0) return 'error';
+    if (length >= 12) return 'success';
+    else if (length > 0) return 'warning';
   },
   render: function() {
     var loaded_bug_info = this.state.loaded_bug_info
@@ -101,6 +100,7 @@ var DiffInfoStore = React.createClass({
         </Form>
         </div> 
         <Button onClick={function () {
+          PageStore.updateURL();
           PageStore.emitChange('loading_patch_diff');
         }}>
           <i className="fa fa-bars" aria-hidden="false" ></i> Check Changeset

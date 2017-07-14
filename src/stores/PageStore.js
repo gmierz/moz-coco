@@ -28,6 +28,8 @@ var _changeset = "ebb97fbc6c39785a4da80e0770d2ef52b8e543fb";
 var _branch = "try";
 var _patchdiffdata = null;
 var _bugData = null;
+var _baseLoc = location;
+var _curLoc = location;
 
 /* PageStore contains and dispatches update events when actions are run
  * this allows multiple components to listen for changes
@@ -137,6 +139,10 @@ var PageStore = Object.assign({}, EventEmitter.prototype, {
 
   setChangeset: function(changeset) {
     _changeset = changeset;
+  },
+
+  updateURL: function() {
+    window.history.pushState(null, "Coco", "index.html?changeset=" + _changeset + "&branch=" + _branch);
   },
 
   emitChange: function(evnt = CHANGE_EVENT) {

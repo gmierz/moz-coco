@@ -224,6 +224,22 @@ var TopLevel = React.createClass({
     PageStore.addChangeListener(this._onChange);
     PageStore.addChangeListener(this._onStartState, 'cocopatchdiff');
     PageStore.addChangeListener(this._onCocoTableState, 'cocotable');
+
+    // Check if query parameters are already given through URL.
+    // If they are store them as the defaults that should be used.
+    var url_string = location;
+    var url = new URL(url_string);
+    var changeset = url.searchParams.get("changeset");
+    console.log(changeset);
+    if (changeset) {
+      PageStore.setChangeset(changeset);
+    }
+    var branch = url.searchParams.get("branch");
+    console.log(branch);
+    if (branch) {
+      PageStore.setBranch(branch);
+    }
+
     // Get latest revision query (last two months)
     Client.makeRequest('activedata.allizom.org', {
       "sort":{"build.date":"desc"},
