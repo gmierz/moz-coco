@@ -303,12 +303,6 @@ var Sidebar = React.createClass({
               }}>
               <div><p>Coverage Patch Diff</p></div>
               </NavItem>
-              <NavItem onClick={function () {
-                PageStore.emitChange('sidebar_change');
-                PageStore.emitChange('cocotable');
-              }}>
-              <div><p>Coverage Queries</p></div>
-              </NavItem> 
             </Nav>
             <InfoModal/>
           </div>

@@ -245,7 +245,7 @@ var TopLevel = React.createClass({
       "sort":{"build.date":"desc"},
       "from":"coverage-summary",
       "limit":1000,
-      "groupby":["build.date","build.revision12","source.language"],
+      "groupby":["build.date","build.revision12"],
       "where":{"gte":{"build.date":{"date":"today-2month"}}},
       "format":"list"
     },
@@ -268,6 +268,7 @@ var TopLevel = React.createClass({
       }
       
       this.setState({loading: false, start_state:true});
+      PageActions.toggleSidebar()
     });
   },
   componentWillUnmount: function() {
