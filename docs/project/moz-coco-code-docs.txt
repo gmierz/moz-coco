@@ -1,0 +1,80 @@
+### Moz-coco code documentation
+
+	# Structure
+
+	The structure of the code base can be viewed in a tree-ish structure:
+
+
+		|----------> Revision Setter (from src/components/Sidebar.js) <------------|
+		|					(Only used by CocoTable)	  					   	   |
+		|											  		  					   |
+		v 													                       v
+	(Collapsed) Sidebar (from src/components/Sidebar.js) <----> TopLevel (from src/components/index.js)
+	 	^																		   ^
+		|                                                                          |
+		|																		   |
+		|																		   |------ Loading (from Loading.js)
+		|                                                                          |                
+		|                                               						   | 				
+		|				(Disabled) CocoTable (from src/components/index.js) -------|
+		|                                                         |                |
+		|			CocoTable communicates with				      |				   |
+		|---------------------------------------------------------|                |
+					another view of the sidebar.			     				   |
+																				   |
+																				   |
+																				   |------ CocoPatchDiff (from src/components/index.js)
+		                                                                                            |
+																				    				|
+																				    				|-------- DiffInfoStore (from src/components/DiffViewer.js)
+		                                                                                            |
+		                                                                                            |
+																				                    |-------- DiffViewer (from src/components/DiffViewer.js)
+
+	There are a few components missing from this view, but it captures the important information
+	and that is that sidebar and top-level work together to bring you different views through the
+	Loading class, CocoTable class, CocoPatchDiff class, and any other class that may have been
+	added into the states of the TopLevel class, and given a button in one of the two sidebar views.
+	The CocoTable allows you to add new queries into src/quereies', and those get automatically generated
+	into the sidebar.
+
+	The missing components are the Page* classes like PageStore. These classes are global and all
+	components communicate with it to move data around. For example, PageStore.emitChange is
+	called after the bug information was loaded to tell DiffInfoStore that it can start
+	processing. The data that DiffInfoStore wants is saved with the function call PageStore.setBugData.
+	There are many other examples of this being used and using PageStore also helps for telling a
+	component which renders another component to change states (like when we're loading data) and
+	this can change what is being rendered.
+
+
+	# Tips
+
+	* PageStore allows you to add and remove listeners which are really helpful to get components
+	to communicate together!
+
+	* Render should be state-based. And don't emit any changes there, however, buttons and other
+	things like that are fine (sidebar is an example). Change the states using listeners.
+
+	* Watch out with having distant components communicating with each other. i.e. if DiffViewer
+	were to start communicating with the sidebar. It makes a messy component structure and also
+	makes it harder to make changes to it later. It necessary at times, but it's good practice to
+	make sure that there isn't a better way of doing what you're doing.
+
+
+	# Two sidebar views?
+
+	Because of how tightly coupled the CocoTable class was to the Sidebar and RevisionSetter classes,
+	it was easier to build a different sidebar view that supplies a way for us to switch between
+	different views that interact minimally with the sidebar (or, in effect, our view changer).
+
+
+	# Design Suggestions
+
+	I think it would be a good idea to keep the PageStore, Top-Level, and Sidebar at the least
+	if any major changes are being thought up. They help with passing data asynchronously, and handling
+	different views.
+
+	CocoPatchDiff uses two components for a reason. It can use these two to load bug information
+	while simultaneously loading the coverage diff information. CocoTable should be redone to have the
+	same thing and to decouple the revision setter, query selector, and drill up/down buttons from
+	the sidebar.
