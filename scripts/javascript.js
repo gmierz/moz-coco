@@ -36,10 +36,6 @@ editFile('src/Config.js', [
   [/const DEVON = (true|false)/, 'const DEVON = ' + String(!production)]
 ]);
 
-console.log("Creating query file");
-require('./concatqueries');
-
-
 if (production) {
   b.transform({
       global: true

@@ -16,19 +16,12 @@ Form} from 'react-bootstrap';
 import PageStore from '../stores/PageStore';
 import PageActions from '../actions/PageActions';
 
-import Client from '../client/Client';
-import ClientFilter from '../client/ClientFilter';
-
 
 var DiffInfoStore = React.createClass({
   getInitialState: function() {
     return {loaded_bug_info: false, data: null, changeset: PageStore.getChangeset(), branch: PageStore.getBranch()};
   },
   componentWillMount: function() {
-    if (!PageStore.getRevision()) {
-      PageActions.setRevision("d19d1d2136bb");
-    }
-    //this.sendQuery();
     PageStore.addChangeListener(this._onDataLoading, 'loading_bug_info');
     PageStore.addChangeListener(this._onDataLoad, 'loaded_bug_info');
   },
@@ -128,19 +121,10 @@ var DiffViewer = React.createClass({
     return {loading_information: false, information: PageStore.getPatchDiffData()};
   },
   componentWillMount: function() {
-    if (!PageStore.getRevision()) {
-      PageActions.setRevision("d19d1d2136bb");
-    }
-    //this.sendQuery();
-    PageStore.addChangeListener(this._onChange, 'query');
     PageStore.addChangeListener(this._onDataChange, 'loaded_patch_data');
   },
   componentWillUnmount: function() {
-    PageStore.removeChangeListener(this._onChange, 'query');
     PageStore.removeChangeListener(this._onDataChange, 'loaded_patch_data');
-  },
-  _onChange: function(e) {
-    this.setState({loading_information: false, information: null});
   },
   _onDataChange: function(e) {
     this.setState({loading_information: false, information: PageStore.getPatchDiffData()});
